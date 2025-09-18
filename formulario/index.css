@@ -1,0 +1,108 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+.tabela{
+    color: #fff;
+    background-color: #58A0C4;
+}
+
+.vaz{
+    background-color: #fff;
+
+}
+
+.vaz:hover{
+    cursor: pointer;
+}
+
+#reprimido{
+    cursor: default;
+}
+
+
+/* Checkbox personalizada */
+
+.cb-container{
+    height: 20px;
+    width: 100px;
+    display: flex;
+    align-items: center;
+}
+
+.cb-container:hover{
+    cursor: pointer;
+}
+
+.cb-container input[type="checkbox"] {
+    display: none;
+  }
+
+.cb-container input[type="checkbox"]:checked + .novaCaixa::after {
+    content: "X";
+  }
+
+.novaCaixa {
+    width: 100%;
+    height: 20px;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+/* QUADRADAO AZUL */
+
+#materias-container{
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 1000px;
+    gap: 10px;
+    font-size: 20px;
+}
+
+label{
+    padding: 10px;
+}
+
+form label input{
+    width: 500px;
+}
+/*  */
+
+.botaoazul{
+    background-color: rgb(35, 35, 163);
+    height: 45px;
+    width: 200px;
+    font: bold;
+    color: #fff;
+    margin-top: 20px;
+}
+
+.botaoazul:hover{
+    background-color: rgb(87, 87, 184);
+    color: rgb(226, 232, 238);
+}
+
+.input[type="checkbox"]{
+    appearance: none;
+    height: 100px;
+}
+
+.retan {
+    width: 80%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    justify-content: center;}
