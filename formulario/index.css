@@ -64,13 +64,14 @@ body {
 #materias-container{
     margin-top: 50px;
     margin-bottom: 50px;
-    width: 1000px;
+    width: 100px;
     gap: 10px;
     font-size: 20px;
 }
 
 label{
     padding: 10px;
+    font-style: italic;
 }
 
 form label input{
@@ -98,11 +99,21 @@ form label input{
 }
 
 .retan {
-    width: 80%;
-    max-width: 800px;
+    width: 800;
+    max-width: 1000px;
     padding: 20px;
     background-color: #ffffff;
     border: 2px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     justify-content: center;}
+
+.materia [type="checkbox"]{
+    appearance: none;
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #56616d;
+}

@@ -1,31 +1,31 @@
 let botão1 = document.getElementById('teste')
 
-function b1x(){
+function b1x() {
     document.getElementById('b1').style.visibility = visible;
     return false;
 }
 
-function testef(){
+function testef() {
     alert("penis")
 }
 
-const materias = ['materia1','materia2','materia3']
+const materias = ['materia1', 'materia2', 'materia3','edurda']
 
 const niveis = ["N1", "N2", "N3"]
 
-const container = document.getElementById ('materias-container')
+const container = document.getElementById('materias-container')
 
 materias.forEach((materia, materiaIndex) => {
-    const label = document.createElement ('label')
-        label.textContent = materia + ':';
-        label.style.display = ('block')
+    const label = document.createElement('label')
+    label.textContent = materia + ':';
+    label.style.display = ('block')
 
     niveis.forEach((nivel, nivelIndex) => {
-        const checkbox = document.createElement ('input')
+        const checkbox = document.createElement('input')
         checkbox.type = 'checkbox'
         checkbox.name = `materia-${materiaIndex}-nivel`
         checkbox.value = nivel
-        checkbox.id = `materia=${materiaIndex}-nivel${nivelIndex}`
+        checkbox.id = `materia=${materiaIndex}-nivel-${nivelIndex}`
 
         const span = document.createElement('span')
         span.textContent = nivel
@@ -33,8 +33,15 @@ materias.forEach((materia, materiaIndex) => {
         label.appendChild(checkbox);
         label.appendChild(span);
         label.appendChild(document.createTextNode(" "));
-        })
-    container.appendChild(label)
     })
+    container.appendChild(label)
+})
 
 
+
+minhaArray.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item; 
+    option.textContent = item; 
+
+    selectElement.appendChild(option);

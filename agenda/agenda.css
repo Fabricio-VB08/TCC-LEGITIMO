@@ -1,0 +1,42 @@
+table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .week-table {
+            margin-bottom: 20px;
+        }
+
+    td {
+    padding: 25px 10px 10px 10px; /* espaço extra no topo */
+    position: relative;
+    vertical-align: top;
+}
+
+/* Número do dia no canto superior direito */
+td::before {
+    content: attr(data-day);
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-size: 12px;
+    color: #555;
+    font-weight: bold;
+}
+
+td {
+    cursor: text;
+}
+td:empty::after {
+    content: "\00a0"; /* evita bug de altura zerada em células vazias */
+}
