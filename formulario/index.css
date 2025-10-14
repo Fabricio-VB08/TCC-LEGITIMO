@@ -67,6 +67,7 @@ body {
     width: 100px;
     gap: 10px;
     font-size: 20px;
+    display: flex;
 }
 
 label{
@@ -108,9 +109,7 @@ form label input{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     justify-content: center;}
 
-.materia [type="checkbox"]{
-    appearance: none;
-}
+
 
 input[type="checkbox"] {
   width: 20px;
