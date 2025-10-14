@@ -2,7 +2,7 @@
 $host = "localhost";   // servidor
 $user = "root";        // usuário do MySQL
 $pass = "";            // senha do MySQL (coloque a sua)
-$db   = "test";        // nome do banco
+$db   = "sistema_senai";        // nome do banco
 
 $conn = new mysqli($host, $user, $pass, $db);
 
