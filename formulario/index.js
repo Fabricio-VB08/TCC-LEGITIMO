@@ -1,19 +1,14 @@
-let botão1 = document.getElementById('teste')
-
-function b1x() {
-    document.getElementById('b1').style.visibility = visible;
-    return false;
-}
-
-function testef() {
-    alert("penis")
-}
-
 const materias = ['materia1', 'materia2', 'materia3','edurda']
 
 const niveis = ["N1", "N2", "N3"]
 
 const container = document.getElementById('materias-container')
+
+function add_materia() {
+    const input_aula = document.getElementById("aula");
+    const valor_materia = input_aula;
+    materias.push("valor_materia");
+}
 
 materias.forEach((materia, materiaIndex) => {
     const label = document.createElement('label')
@@ -36,12 +31,3 @@ materias.forEach((materia, materiaIndex) => {
     })
     container.appendChild(label)
 })
-
-
-
-minhaArray.forEach(item => {
-    const option = document.createElement("option");
-    option.value = item; 
-    option.textContent = item; 
-
-    selectElement.appendChild(option);
