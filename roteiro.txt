@@ -1,0 +1,23 @@
+login 
+(login normal)
+(login adm)
+
+home
+(gerenciamento de usuarios[se for adm])
+(ver/editar calendario)
+(professores)
+(ver/adicionar materias)
+(sair[volta pro login])
+
+gerenciamento de usuarios
+(sair[vai pra home])
+
+ver/editar calendario
+(voltar[vai pra home])
+
+professores
+(adicionar professor[leva ao formulario])
+
+formulario
+(X[volta para professores])
+(confirmar novo professor[volta para professores])
