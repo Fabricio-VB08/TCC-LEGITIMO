@@ -77,3 +77,11 @@
     .form-footer a:hover {
       text-decoration: underline;
     }
+
+    .Busca_Professor input {
+      border-radius: 90px;
+      width: 300px;
+      position: absolute;
+
+      top: 1000px;
+    }
