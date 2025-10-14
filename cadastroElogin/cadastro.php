@@ -12,23 +12,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tipo = "administrador"; 
     $id_professor = "NULL";
 
-    // Se quiser que esse cadastro seja de professor:
-    // Primeiro insere na tabela professores
-    /*
-    $sql_prof = "INSERT INTO professores (nome_professor, email_professor) 
-                 VALUES ('$nome', '$email')";
-    if ($conn->query($sql_prof) === TRUE) {
-        $id_professor = $conn->insert_id;
-        $tipo = "professor";
-    }
-    */
 
     // Depois insere na tabela usuarios
     $sql_user = "INSERT INTO usuarios (email, senha, tipo_usuario, id_professor) 
                  VALUES ('$email', '$senha', '$tipo', $id_professor)";
 
     if ($conn->query($sql_user) === TRUE) {
-        echo "<p>Usuário cadastrado com sucesso!</p>";
+        session_start();
+        $_SESSION['mensagem'] = "Usuário cadastrado com sucesso!";
+        header('Location: /CalenafrontGABAS/cadastroElogin/login.php');
+        exit();
     } else {
         echo "<p>Erro: " . $conn->error . "</p>";
     }
@@ -49,6 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="nome">Nome</label>
         <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
       </div>
+      
       <div class="input-group">
         <label for="email">E-mail</label>
         <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
@@ -60,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <button type="submit" class="submit-btn">Cadastrar</button>
     </form>
     <div class="form-footer">
-      <p>Já tem uma conta? <a href="login.html">Faça login</a></p>
+      <p>Já tem uma conta? <a href="login.php">Faça login</a></p>
     </div>
   </div>
 
