@@ -1,6 +1,22 @@
+<?php 
+require "./mysql.php";
 
-<?php
-phpinfo()
+if ($_SERVER['REQUEST_METHOD'] =="POST"){
+    $id_aula = $_POST["id_aula"];
+
+    $sql = "INSERT INTO aulas (id_aula)
+            VALUES (?)";
+    
+    if ($stmt->execute()) {
+        echo "Aula inserida com sucesso!";
+    } else {
+        echo "Erro ao inserir aula:" . $stmt->error;
+    }
+
+    $stmt->close();
+
+}
+ 
 ?>
 
 <!DOCTYPE html>
@@ -22,9 +38,9 @@ phpinfo()
 
     </div>
 
-    <select></select>
-
 </div>
+
+<div class="materias-container"></div>
 
 
  <!--  -->
@@ -55,10 +71,19 @@ phpinfo()
 
     </table>
     <link rel="stylesheet" href="index.css">
+<!--FORMULARIO SUPER FODAO-->
+<form action="index.php" method="POST">
+    <input id="aula" placeholder="Adicione uma nova materia" required>
+
+</br>
+</br>
+    <button onclick="add_materia()">Adicionar</button>
+</form>
 
     <button class="botaoazul">CADASTRAR PROFESSOR</button>
     </div>
     <script src="index.js"></script>
+<!---->
 
 <!-- QUADRADO COM X <label class=" cb-container"><input type="checkbox"><span class="novaCaixa"></span></label> -->
     
