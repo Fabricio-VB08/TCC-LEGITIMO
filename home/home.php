@@ -16,10 +16,11 @@ if (!isset($_SESSION['id_usuario'])) { header('Location: /TCC-LEGITIMO/cadastroE
     <div class="navbar">
     <div class="esquerda"></div>
 
-
+   
     <div class="direita">
-        <?php if (isset($_SESSION['tipo_usuario']) && $_SESSION['tipo_usuario'] == 'administrador'): ?>
-            <a href="/TCC-LEGITIMO/cadastroElogin/crud_usuarios.php">Gerenciar Usuários</a>
+    <?php if (isset($_SESSION['tipo_usuario']) && $_SESSION['tipo_usuario'] == 'administrador'): ?>
+        <a href="/TCC-LEGITIMO/cadastroElogin/crud_usuarios.php">Gerenciar Usuários</a>
+        
         <?php endif; ?>
         <a href="/TCC-LEGITIMO/cadastroElogin/login.php">Sair</a>    
     </div>
