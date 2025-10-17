@@ -3,8 +3,10 @@ require 'mysql.php';
 session_start();
 
 // Verificar se está logado
-if (!isset($_SESSION['email'])) {
-    header('Location: /CalenafrontGABAS/cadastroElogin/login.php');
+if (!isset($_SESSION['id_usuario']) || $_SESSION['tipo_usuario'] !== 'administrador') {
+    // Se não for admin, redireciona para a home com uma mensagem de erro (opcional)
+    // $_SESSION['mensagem_erro'] = "Acesso negado!";
+    header('Location: /TCC-LEGITIMO/home/home.php');
     exit;
 }
 
@@ -15,146 +17,136 @@ if (isset($_POST['acao']) && $_POST['acao'] == 'criar') {
     $email = $_POST['email'];
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
     $tipo = $_POST['tipo_usuario'];
-    
-    // Inicia a transação
+    $nome_professor = $_POST['nome_professor'] ?? null;
+
     $conn->begin_transaction();
-    
+
     try {
-        $id_professor = "NULL";
-        
-        // Se for professor, criar entrada na tabela de professores
-        if ($tipo == 'professor' && !empty($_POST['nome_professor'])) {
-            $nome_professor = $conn->real_escape_string($_POST['nome_professor']);
-            $email_professor = $conn->real_escape_string($email); // Usando o mesmo email do usuário
-            $sql_professor = "INSERT INTO professores (nome_professor, email_professor) VALUES ('$nome_professor', '$email_professor')";
-            
-            if ($conn->query($sql_professor)) {
-                $id_professor = $conn->insert_id;
-            } else {
-                throw new Exception("Erro ao criar professor: " . $conn->error);
+        $id_professor = null;
+
+        if ($tipo == 'professor' && !empty($nome_professor)) {
+            $stmt_prof = $conn->prepare("INSERT INTO professores (nome_professor, email_professor) VALUES (?, ?)");
+            $stmt_prof->bind_param("ss", $nome_professor, $email);
+            if (!$stmt_prof->execute()) {
+                throw new Exception("Erro ao criar professor: " . $stmt_prof->error);
             }
+            $id_professor = $stmt_prof->insert_id;
+            $stmt_prof->close();
         }
 
-        // Insere o usuário
-        $sql = "INSERT INTO usuarios (email, senha, tipo_usuario, id_professor) 
-                VALUES ('$email', '$senha', '$tipo', $id_professor)";
-
-        if ($conn->query($sql)) {
-            $conn->commit();
-            $mensagem = "Usuário " . ($tipo == 'professor' ? "e professor " : "") . "criado com sucesso!";
-            $tipo_mensagem = "sucesso";
-        } else {
-            throw new Exception("Erro ao criar usuário: " . $conn->error);
+        $stmt_user = $conn->prepare("INSERT INTO usuarios (email, senha, tipo_usuario, id_professor) VALUES (?, ?, ?, ?)");
+        $stmt_user->bind_param("sssi", $email, $senha, $tipo, $id_professor);
+        if (!$stmt_user->execute()) {
+            throw new Exception("Erro ao criar usuário: " . $stmt_user->error);
         }
+        $stmt_user->close();
+
+        $conn->commit();
+        $mensagem = "Usuário criado com sucesso!";
+        $tipo_mensagem = "sucesso";
     } catch (Exception $e) {
         $conn->rollback();
         $mensagem = $e->getMessage();
         $tipo_mensagem = "erro";
     }
 }
-
 // DELETAR USUÁRIO
 if (isset($_GET['deletar'])) {
-    $id = $_GET['deletar'];
-    $sql = "DELETE FROM usuarios WHERE id_usuario = $id";
+    $id = (int)$_GET['deletar'];
+    $stmt = $conn->prepare("DELETE FROM usuarios WHERE id_usuario = ?");
+    $stmt->bind_param("i", $id);
 
-    if ($conn->query($sql) === TRUE) {
+    if ($stmt->execute()) {
         $mensagem = "Usuário deletado com sucesso!";
         $tipo_mensagem = "sucesso";
     } else {
-        $mensagem = "Erro ao deletar usuário: " . $conn->error;
+        $mensagem = "Erro ao deletar usuário: " . $stmt->error;
         $tipo_mensagem = "erro";
     }
+    $stmt->close();
 }
 
 // EDITAR USUÁRIO
 if (isset($_POST['acao']) && $_POST['acao'] == 'editar') {
-    $id = $_POST['id_usuario'];
+    $id = (int)$_POST['id_usuario'];
     $email = $_POST['email'];
     $tipo = $_POST['tipo_usuario'];
-    
-    // Inicia a transação
+    $nome_professor = $_POST['nome_professor'] ?? null;
+
     $conn->begin_transaction();
-    
+
     try {
-        // Verificar se o usuário já tem um professor associado
-        $sql_check = "SELECT id_professor, tipo_usuario FROM usuarios WHERE id_usuario = $id";
-        $result_check = $conn->query($sql_check);
-        $usuario_atual = $result_check->fetch_assoc();
-        
-        // Gerenciar o registro do professor
+        $stmt_check = $conn->prepare("SELECT id_professor FROM usuarios WHERE id_usuario = ?");
+        $stmt_check->bind_param("i", $id);
+        $stmt_check->execute();
+        $usuario_atual = $stmt_check->get_result()->fetch_assoc();
+        $stmt_check->close();
+
+        $id_professor_final = null;
+
         if ($tipo == 'professor') {
-            $nome_professor = $conn->real_escape_string($_POST['nome_professor']);
-            
             if ($usuario_atual['id_professor']) {
-                // Atualizar professor existente
-                $sql_prof = "UPDATE professores SET 
-                            nome_professor = '$nome_professor',
-                            email_professor = '$email'
-                            WHERE id_professor = {$usuario_atual['id_professor']}";
-                if (!$conn->query($sql_prof)) {
-                    throw new Exception("Erro ao atualizar professor: " . $conn->error);
+                $stmt_prof = $conn->prepare("UPDATE professores SET nome_professor = ?, email_professor = ? WHERE id_professor = ?");
+                $stmt_prof->bind_param("ssi", $nome_professor, $email, $usuario_atual['id_professor']);
+                if (!$stmt_prof->execute()) {
+                    throw new Exception("Erro ao atualizar professor: " . $stmt_prof->error);
                 }
-                $id_professor = $usuario_atual['id_professor'];
+                $id_professor_final = $usuario_atual['id_professor'];
+                $stmt_prof->close();
             } else {
-                // Criar novo professor
-                $sql_prof = "INSERT INTO professores (nome_professor, email_professor) 
-                            VALUES ('$nome_professor', '$email')";
-                if (!$conn->query($sql_prof)) {
-                    throw new Exception("Erro ao criar professor: " . $conn->error);
+                $stmt_prof = $conn->prepare("INSERT INTO professores (nome_professor, email_professor) VALUES (?, ?)");
+                $stmt_prof->bind_param("ss", $nome_professor, $email);
+                if (!$stmt_prof->execute()) {
+                    throw new Exception("Erro ao criar novo professor: " . $stmt_prof->error);
                 }
-                $id_professor = $conn->insert_id;
+                $id_professor_final = $stmt_prof->insert_id;
+                $stmt_prof->close();
             }
-        } else {
-            $id_professor = "NULL";
-            
-            // Se estava como professor e mudou para outro tipo, mantém o registro do professor
-            // mas remove a associação com o usuário
         }
 
-        // Atualizar usuário
         if (!empty($_POST['senha'])) {
             $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
-            $sql = "UPDATE usuarios SET 
-                    email = '$email', 
-                    senha = '$senha', 
-                    tipo_usuario = '$tipo', 
-                    id_professor = $id_professor 
-                    WHERE id_usuario = $id";
+            $stmt_user = $conn->prepare("UPDATE usuarios SET email = ?, senha = ?, tipo_usuario = ?, id_professor = ? WHERE id_usuario = ?");
+            $stmt_user->bind_param("sssis", $email, $senha, $tipo, $id_professor_final, $id);
         } else {
-            $sql = "UPDATE usuarios SET 
-                    email = '$email', 
-                    tipo_usuario = '$tipo', 
-                    id_professor = $id_professor 
-                    WHERE id_usuario = $id";
+            $stmt_user = $conn->prepare("UPDATE usuarios SET email = ?, tipo_usuario = ?, id_professor = ? WHERE id_usuario = ?");
+            $stmt_user->bind_param("ssis", $email, $tipo, $id_professor_final, $id);
         }
 
-        if ($conn->query($sql)) {
-            $conn->commit();
-            $mensagem = "Usuário atualizado com sucesso!";
-            $tipo_mensagem = "sucesso";
-        } else {
-            throw new Exception("Erro ao atualizar usuário: " . $conn->error);
+        if (!$stmt_user->execute()) {
+            throw new Exception("Erro ao atualizar usuário: " . $stmt_user->error);
         }
+        $stmt_user->close();
+
+        $conn->commit();
+        $mensagem = "Usuário atualizado com sucesso!";
+        $tipo_mensagem = "sucesso";
     } catch (Exception $e) {
         $conn->rollback();
         $mensagem = $e->getMessage();
         $tipo_mensagem = "erro";
     }
 }
-
 // BUSCAR USUÁRIO PARA EDITAR
 $usuario_editar = null;
 if (isset($_GET['editar'])) {
-    $id = $_GET['editar'];
-    $sql = "SELECT * FROM usuarios WHERE id_usuario = $id";
-    $resultado = $conn->query($sql);
-    $usuario_editar = $resultado->fetch_assoc();
+    $id = (int)$_GET['editar'];
+    $stmt = $conn->prepare("SELECT u.*, p.nome_professor FROM usuarios u LEFT JOIN professores p ON u.id_professor = p.id_professor WHERE u.id_usuario = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    if ($resultado->num_rows > 0) {
+        $usuario_editar = $resultado->fetch_assoc();
+    }
+    $stmt->close();
 }
 
 // LISTAR TODOS OS USUÁRIOS
-$sql_listar = "SELECT * FROM usuarios";
-$resultado_lista = $conn->query($sql_listar);
+$sql_listar = "SELECT u.id_usuario, u.email, u.tipo_usuario, u.id_professor, p.nome_professor 
+               FROM usuarios u 
+               LEFT JOIN professores p ON u.id_professor = p.id_professor 
+               ORDER BY u.id_usuario";
+$resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é aceitável pois não há input do usuário.
 ?>
 
 <!DOCTYPE html>
@@ -406,7 +398,7 @@ $resultado_lista = $conn->query($sql_listar);
     <div class="container">
         <div class="header">
             <h1>Gerenciamento de Usuários</h1>
-            <a href="/CalenafrontGABAS/home/home.php" class="btn-logout">Sair</a>
+            <a href="/TCC-LEGITIMO/home/home.php" class="btn-logout">Voltar para Home</a>
         </div>
 
         <?php if (isset($mensagem)): ?>
@@ -453,17 +445,7 @@ $resultado_lista = $conn->query($sql_listar);
                     <div class="form-group professor-field" style="display: none;">
                         <label for="nome_professor">Nome do Professor</label>
                         <input type="text" name="nome_professor" id="nome_professor" 
-                               value="<?php 
-                                    if (isset($usuario_editar) && $usuario_editar['id_professor']) {
-                                        $sql_prof = "SELECT nome_professor FROM professores WHERE id_professor = " . $usuario_editar['id_professor'];
-                                        $result_prof = $conn->query($sql_prof);
-                                        if ($prof = $result_prof->fetch_assoc()) {
-                                            echo htmlspecialchars($prof['nome_professor']);
-                                        }
-                                    }
-                               ?>"
-                               <?php echo isset($usuario_editar) && $usuario_editar['tipo_usuario'] == 'professor' ? 'required' : ''; ?>
-                        >>
+                               value="<?php echo isset($usuario_editar['nome_professor']) ? htmlspecialchars($usuario_editar['nome_professor']) : ''; ?>">
                     </div>
                 </div>
 
@@ -502,13 +484,7 @@ $resultado_lista = $conn->query($sql_listar);
                                 <td><?php echo ucfirst($usuario['tipo_usuario']); ?></td>
                                 <td><?php 
                                     if ($usuario['id_professor']) {
-                                        $sql_prof = "SELECT nome_professor FROM professores WHERE id_professor = " . $usuario['id_professor'];
-                                        $result_prof = $conn->query($sql_prof);
-                                        if ($prof = $result_prof->fetch_assoc()) {
-                                            echo $prof['nome_professor'] . " (ID: " . $usuario['id_professor'] . ")";
-                                        } else {
-                                            echo "ID: " . $usuario['id_professor'];
-                                        }
+                                        echo htmlspecialchars($usuario['nome_professor']) . " (ID: " . $usuario['id_professor'] . ")";
                                     } else {
                                         echo '-';
                                     }

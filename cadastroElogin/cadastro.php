@@ -8,16 +8,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT); // senha segura
 
-    // Se for sempre administrador por enquanto
-    $tipo = "administrador"; 
+    // Verifica se já existe algum usuário no banco
+    $sql_check_users = "SELECT COUNT(*) as total FROM usuarios";
+    $result = $conn->query($sql_check_users);
+    $row = $result->fetch_assoc();
+
+    // Se não houver usuários, o primeiro é administrador. Senão, é professor.
+    if ($row['total'] == 0) {
+        $tipo = "administrador";
+    } else {
+        $tipo = "professor";
+    }
+
     $id_professor = "NULL";
 
-
     // Depois insere na tabela usuarios
-    $sql_user = "INSERT INTO usuarios (email, senha, tipo_usuario, id_professor) 
-                 VALUES ('$email', '$senha', '$tipo', $id_professor)";
-
-    if ($conn->query($sql_user) === TRUE) {
+    $stmt = $conn->prepare("INSERT INTO usuarios (email, senha, tipo_usuario, id_professor) VALUES (?, ?, ?, NULL)");
+    $stmt->bind_param("sss", $email, $senha, $tipo);
+    if ($stmt->execute()) {
         session_start();
         $_SESSION['mensagem'] = "Usuário cadastrado com sucesso!";
         header('Location: /CalenafrontGABAS/cadastroElogin/login.php');
