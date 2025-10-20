@@ -1,16 +1,6 @@
 -- Desativa a verificação de chaves estrangeiras para evitar erros ao apagar tabelas na ordem errada.
 SET FOREIGN_KEY_CHECKS=0;
 
--- Remove tabelas antigas ou com estrutura incorreta.
-DROP TABLE IF EXISTS `aulas`;
-DROP TABLE IF EXISTS `professores_competencias`;
-DROP TABLE IF EXISTS `competencias`;
-DROP TABLE IF EXISTS `unidades_curriculares`;
-DROP TABLE IF EXISTS `professores_disponibilidade`;
-DROP TABLE IF EXISTS `usuarios`;
-DROP TABLE IF EXISTS `professores`;
-DROP TABLE IF EXISTS `turnos`;
-
 -- Reativa a verificação de chaves estrangeiras.
 SET FOREIGN_KEY_CHECKS=1;
 
