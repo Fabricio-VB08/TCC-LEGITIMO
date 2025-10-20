@@ -1,33 +1,18 @@
-const materias = ['materia1', 'materia2', 'materia3','edurda']
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa o Select2 no campo de seleção de professor
+    $('#professor').select2({
+        placeholder: '-- Pesquise ou selecione um professor --',
+        allowClear: true
+    });
 
-const niveis = ["N1", "N2", "N3"]
-
-const container = document.getElementById('materias-container')
-
-function add_materia() {
-    const input_aula = document.getElementById("aula");
-    const valor_materia = input_aula;
-    materias.push("valor_materia");
-}
-
-materias.forEach((materia, materiaIndex) => {
-    const label = document.createElement('label')
-    label.textContent = materia + ':';
-    label.style.display = ('block')
-
-    niveis.forEach((nivel, nivelIndex) => {
-        const checkbox = document.createElement('input')
-        checkbox.type = 'checkbox'
-        checkbox.name = `materia-${materiaIndex}-nivel`
-        checkbox.value = nivel
-        checkbox.id = `materia=${materiaIndex}-nivel-${nivelIndex}`
-
-        const span = document.createElement('span')
-        span.textContent = nivel
-
-        label.appendChild(checkbox);
-        label.appendChild(span);
-        label.appendChild(document.createTextNode(" "));
-    })
-    container.appendChild(label)
-})
+    // Adiciona um listener para o evento de mudança do Select2
+    $('#professor').on('change', function() {
+        const professorId = $(this).val();
+        
+        // Apenas submete o formulário se um professor válido for selecionado
+        if (professorId) {
+            // this.form não funciona com jQuery, então buscamos o formulário pai
+            $(this).closest('form').submit();
+        }
+    });
+});

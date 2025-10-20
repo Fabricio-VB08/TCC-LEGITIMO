@@ -155,223 +155,9 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD de Usuários</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(90deg, rgba(235, 242, 245, 1) 0%, rgba(207, 236, 255, 1) 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background-color: #162c68;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 24px;
-        }
-
-        .btn-logout {
-            background-color: #d32f2f;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-logout:hover {
-            background-color: #b71c1c;
-        }
-
-        .mensagem {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            display: none;
-        }
-
-        .mensagem.sucesso {
-            background-color: #4caf50;
-            color: white;
-            display: block;
-        }
-
-        .mensagem.erro {
-            background-color: #f44336;
-            color: white;
-            display: block;
-        }
-
-        .form-section {
-            background-color: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-
-        .form-section h2 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 18px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-size: 14px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            max-width: 400px;
-        }
-
-        input:focus, select:focus {
-            border-color: #5048be;
-            outline: none;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .btn-primary {
-            background-color: #5048be;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-primary:hover {
-            background-color: #2b599e;
-        }
-
-        .btn-secondary {
-            background-color: #757575;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-secondary:hover {
-            background-color: #616161;
-        }
-
-        .table-section {
-            background-color: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-        }
-
-        .table-section h2 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 18px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background-color: #f5f5f5;
-            padding: 12px;
-            text-align: left;
-            border-bottom: 2px solid #ddd;
-            font-weight: bold;
-            color: #333;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        .btn-editar {
-            background-color: #2196f3;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-right: 5px;
-        }
-
-        .btn-editar:hover {
-            background-color: #0b7dda;
-        }
-
-        .btn-deletar {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .btn-deletar:hover {
-            background-color: #da190b;
-        }
-
-        .acao {
-            display: flex;
-            gap: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="/TCC-LEGITIMO/assets/css/style.css">
+    <!-- Estilo principal para formulários e páginas de gerenciamento -->
+    <link rel="stylesheet" href="/TCC-LEGITIMO/formulario/style.css">
     <script>
         function toggleProfessorFields(tipo) {
             const professorFields = document.querySelectorAll('.professor-field');
@@ -398,7 +184,8 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
     <div class="container">
         <div class="header">
             <h1>Gerenciamento de Usuários</h1>
-            <a href="/TCC-LEGITIMO/home/home.php" class="btn-logout">Voltar para Home</a>
+            <!-- Botão para sair, mantendo o padrão das outras telas -->
+            <a href="/TCC-LEGITIMO/home/home.php" class="btn-secondary">Voltar para Home</a>
         </div>
 
         <?php if (isset($mensagem)): ?>
@@ -418,7 +205,7 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
                     <input type="hidden" name="id_usuario" value="<?php echo $usuario_editar['id_usuario']; ?>">
                 <?php endif; ?>
 
-                <div class="form-row">
+                <div class="form-row" style="grid-template-columns: 1fr 1fr; display: grid; gap: 20px;">
                     <div class="form-group">
                         <label for="email">E-mail</label>
                         <input type="email" name="email" id="email" required 
@@ -432,7 +219,7 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row" style="grid-template-columns: 1fr 1fr; display: grid; gap: 20px;">
                     <div class="form-group">
                         <label for="tipo_usuario">Tipo de Usuário</label>
                         <select name="tipo_usuario" id="tipo_usuario" required onchange="toggleProfessorFields(this.value)">
@@ -449,13 +236,13 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-top: 20px;">
                     <button type="submit" class="btn-primary">
                         <?php echo isset($usuario_editar) ? "Atualizar" : "Criar"; ?>
                     </button>
                     
                     <?php if (isset($usuario_editar)): ?>
-                        <a href="crud_usuarios.php" class="btn-secondary" style="text-decoration: none; display: inline-block;">Cancelar</a>
+                        <a href="crud_usuarios.php" class="btn-secondary">Cancelar</a>
                     <?php endif; ?>
                 </div>
             </form>
@@ -472,7 +259,7 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
                             <th>ID</th>
                             <th>E-mail</th>
                             <th>Tipo</th>
-                            <th>ID Professor</th>
+                            <th>Nome Associado</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -484,7 +271,7 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
                                 <td><?php echo ucfirst($usuario['tipo_usuario']); ?></td>
                                 <td><?php 
                                     if ($usuario['id_professor']) {
-                                        echo htmlspecialchars($usuario['nome_professor']) . " (ID: " . $usuario['id_professor'] . ")";
+                                        echo htmlspecialchars($usuario['nome_professor']);
                                     } else {
                                         echo '-';
                                     }

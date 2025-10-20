@@ -34,6 +34,13 @@ CREATE TABLE `aulas` (
   `id_professor` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `aulas`
+--
+
+INSERT INTO `aulas` (`id_aula`, `codigo_materia`, `id_turno`, `id_professor`) VALUES
+(0, 'PROJ-INT', 1, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -46,6 +53,14 @@ CREATE TABLE `competencias` (
   `codigo_materia` varchar(10) NOT NULL,
   `nivel_competencia` enum('N0','N1','N2','N3') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `competencias`
+--
+
+INSERT INTO `competencias` (`id_competencia`, `id_professor`, `codigo_materia`, `nivel_competencia`) VALUES
+(1, 1, 'PROJ-INT', 'N3'),
+(2, 1, 'WEB-BACK', 'N2');
 
 -- --------------------------------------------------------
 
@@ -65,7 +80,8 @@ CREATE TABLE `professores` (
 --
 
 INSERT INTO `professores` (`id_professor`, `nome_professor`, `telefone_professor`, `email_professor`) VALUES
-(1, 'gabriel', NULL, 'gabixinha@gmail.com');
+(1, 'Gabriel', NULL, 'gabixinha@gmail.com'),
+(2, 'Eduarda', NULL, 'duda@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -77,6 +93,15 @@ CREATE TABLE `turnos` (
   `id_turno` int(11) NOT NULL,
   `nome_turno` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `turnos`
+--
+
+INSERT INTO `turnos` (`id_turno`, `nome_turno`) VALUES
+(1, 'Manhã'),
+(2, 'Tarde'),
+(3, 'Noite');
 
 -- --------------------------------------------------------
 
@@ -107,7 +132,7 @@ INSERT INTO `usuarios` (`id_usuario`, `email`, `senha`, `tipo_usuario`, `id_prof
 -- Índices de tabela `aulas`
 --
 ALTER TABLE `aulas`
-  ADD PRIMARY KEY (`id_aula`),
+  ADD PRIMARY KEY (`id_aula`,`codigo_materia`),
   ADD KEY `id_turno` (`id_turno`),
   ADD KEY `id_professor` (`id_professor`);
 
@@ -147,19 +172,19 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `aulas`
 --
 ALTER TABLE `aulas`
-  MODIFY `id_aula` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_aula` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT de tabela `competencias`
 --
 ALTER TABLE `competencias`
-  MODIFY `id_competencia` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_competencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `professores`
 --
 ALTER TABLE `professores`
-  MODIFY `id_professor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_professor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `turnos`

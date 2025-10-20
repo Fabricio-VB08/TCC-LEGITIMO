@@ -1,0 +1,223 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(90deg, rgba(235, 242, 245, 1) 0%, rgba(207, 236, 255, 1) 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* --- Layout Principal --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background-color: #162c68;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 24px;
+}
+
+/* --- Seções de Conteúdo --- */
+.form-section,
+.table-section {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.form-section h2,
+.table-section h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 18px;
+}
+
+/* --- Formulários --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.form-row .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Estilo para o Select2 usar 100% da largura */
+.select2-container--default .select2-selection--single {
+    height: 40px; /* Mesma altura dos inputs */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+
+input:focus,
+select:focus,
+.select2-container--focus .select2-selection--single {
+    border-color: #5048be !important;
+    outline: none;
+    box-shadow: none;
+}
+
+/* --- Botões --- */
+.btn-primary {
+    background-color: #5048be;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background-color: #3a348e;
+}
+
+.btn-secondary {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary:hover {
+    background-color: #616161;
+}
+
+.btn-deletar {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.btn-deletar:hover {
+    background-color: #da190b;
+}
+
+.btn-editar {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.btn-editar:hover {
+    background-color: #0b7dda;
+}
+
+/* --- Tabelas --- */
+.table-section {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+.acao {
+    display: flex;
+    gap: 5px;
+}
+
+/* --- Mensagens e Alertas --- */
+.mensagem {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    color: white;
+}
+
+.mensagem.sucesso {
+    background-color: #4caf50;
+}
+
+.mensagem.erro {
+    background-color: #f44336;
+}
+
+.info-box {
+    background-color: #e7f3fe;
+    border-left: 6px solid #2196F3;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}

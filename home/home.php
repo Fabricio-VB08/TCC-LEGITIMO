@@ -43,12 +43,11 @@ if (!isset($_SESSION['id_usuario'])) { header('Location: /TCC-LEGITIMO/cadastroE
                 <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconprofessores.png">
                 <h3>Ver/Cadastrar Professores</h3>
             </button>
-
-            <button class="botao-picao"  onclick="window.location.href = '' ">
-                <a href=""></a>
-                <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconmaterias.png">
-                <h3>Ver/Adicionar Matérias</h3>
-            </button>
+ 
+               <button class="botao-picao"  onclick="window.location.href = '/TCC-LEGITIMO/formulario/crud_competencias.php' ">
+                 <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconmaterias.png">
+                 <h3>Ver/Adicionar Matérias</h3>
+             </button>
             </div>
         </div>
     </div>
