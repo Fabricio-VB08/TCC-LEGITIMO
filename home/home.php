@@ -46,8 +46,19 @@ if (!isset($_SESSION['id_usuario'])) { header('Location: /TCC-LEGITIMO/cadastroE
  
                <button class="botao-picao"  onclick="window.location.href = '/TCC-LEGITIMO/formulario/crud_competencias.php' ">
                  <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconmaterias.png">
-                 <h3>Ver/Adicionar Matérias</h3>
+                 <h3>Gerenciar Matérias</h3>
              </button>
+
+             <button class="botao-picao"  onclick="window.location.href = '/TCC-LEGITIMO/formulario/relatorio_professores.php' ">
+                <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconrelatorio.png"> <!-- Sugestão: crie um ícone para relatórios -->
+                <h3>Relatório de Professores</h3>
+            </button>
+            </div>
+            <div class="horizonte-botao" style="margin-top: 20px;">
+                <button class="botao-picao" onclick="window.location.href = '/TCC-LEGITIMO/cadastroElogin/crud_usuarios.php'">
+                    <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconprofessores.png"> <!-- Pode usar um ícone diferente se quiser -->
+                    <h3>Atribuir Competências</h3>
+                </button>
             </div>
         </div>
     </div>

@@ -50,17 +50,28 @@ if (isset($_POST['acao_competencia']) && $_POST['acao_competencia'] == 'criar') 
 }
 
 // DELETAR
-if (isset($_GET['deletar_uc'])) {
-    $id = $_GET['deletar_uc'];
-    $stmt = $conn->prepare("DELETE FROM unidades_curriculares WHERE id_uc = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-}
-if (isset($_GET['deletar_competencia'])) {
-    $id = $_GET['deletar_competencia'];
-    $stmt = $conn->prepare("DELETE FROM competencias WHERE id_competencia = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
+if (isset($_POST['acao_delete'])) {
+    if ($_POST['acao_delete'] == 'deletar_uc' && isset($_POST['id_uc'])) {
+        $id = $_POST['id_uc'];
+        // É uma boa prática usar transações ao deletar uma UC para garantir que suas competências também sejam removidas atomicamente.
+        $conn->begin_transaction();
+        try {
+            $conn->query("DELETE FROM competencias WHERE id_uc = $id"); // Deleta competências primeiro
+            $conn->query("DELETE FROM unidades_curriculares WHERE id_uc = $id"); // Depois a UC
+            $conn->commit();
+            $mensagem = "Matéria e suas competências foram deletadas.";
+            $tipo_mensagem = "sucesso";
+        } catch (Exception $e) {
+            $conn->rollback();
+            $mensagem = "Erro ao deletar matéria: " . $e->getMessage();
+            $tipo_mensagem = "erro";
+        }
+    } elseif ($_POST['acao_delete'] == 'deletar_competencia' && isset($_POST['id_competencia'])) {
+        $id = $_POST['id_competencia'];
+        $stmt = $conn->prepare("DELETE FROM competencias WHERE id_competencia = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+    }
 }
 
 // BUSCAR DADOS PARA EXIBIÇÃO
@@ -138,7 +149,11 @@ while ($comp = $result_comp->fetch_assoc()) {
                     <div class="form-section uc-card">
                         <div class="uc-header">
                             <h3><?php echo htmlspecialchars($uc['nome_uc']); ?></h3>
-                            <a href="?deletar_uc=<?php echo $uc['id_uc']; ?>" class="btn-deletar" onclick="return confirm('Tem certeza que deseja deletar esta matéria e todas as suas competências?');">Excluir Matéria</a>
+                            <form method="POST" action="crud_competencias.php" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja deletar esta matéria e todas as suas competências?');">
+                                <input type="hidden" name="acao_delete" value="deletar_uc">
+                                <input type="hidden" name="id_uc" value="<?php echo $uc['id_uc']; ?>">
+                                <button type="submit" class="btn-deletar">Excluir Matéria</button>
+                            </form>
                         </div>
 
                         <!-- Lista de competências existentes -->
@@ -149,7 +164,11 @@ while ($comp = $result_comp->fetch_assoc()) {
                                 <?php foreach ($uc['competencias'] as $comp): ?>
                                     <li class="competencia-item">
                                         <span><?php echo htmlspecialchars($comp['nome_competencia']); ?></span>
-                                        <a href="?deletar_competencia=<?php echo $comp['id_competencia']; ?>" class="btn-deletar" onclick="return confirm('Tem certeza?');">Excluir</a>
+                                        <form method="POST" action="crud_competencias.php" style="display: inline;" onsubmit="return confirm('Tem certeza?');">
+                                            <input type="hidden" name="acao_delete" value="deletar_competencia">
+                                            <input type="hidden" name="id_competencia" value="<?php echo $comp['id_competencia']; ?>">
+                                            <button type="submit" class="btn-deletar">Excluir</button>
+                                        </form>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>

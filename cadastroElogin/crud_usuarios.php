@@ -10,6 +10,15 @@ if (!isset($_SESSION['id_usuario']) || $_SESSION['tipo_usuario'] !== 'administra
     exit;
 }
 
+// --- DADOS PARA O FORMULÁRIO ---
+// Buscar turnos para o formulário de disponibilidade
+$turnos_result = $conn->query("SELECT * FROM turnos ORDER BY id_turno");
+$turnos = $turnos_result->fetch_all(MYSQLI_ASSOC);
+
+// Dias da semana
+$dias_semana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+
+
 // ===== OPERAÇÕES DO CRUD =====
 
 // CRIAR USUÁRIO
@@ -18,6 +27,7 @@ if (isset($_POST['acao']) && $_POST['acao'] == 'criar') {
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
     $tipo = $_POST['tipo_usuario'];
     $nome_professor = $_POST['nome_professor'] ?? null;
+    $disponibilidade = $_POST['disponibilidade'] ?? [];
 
     $conn->begin_transaction();
 
@@ -32,6 +42,18 @@ if (isset($_POST['acao']) && $_POST['acao'] == 'criar') {
             }
             $id_professor = $stmt_prof->insert_id;
             $stmt_prof->close();
+
+            // Salvar disponibilidade
+            if (!empty($disponibilidade)) {
+                $stmt_disp = $conn->prepare("INSERT INTO professores_disponibilidade (id_professor, dia_semana, id_turno) VALUES (?, ?, ?)");
+                foreach ($disponibilidade as $dia => $turnos_selecionados) {
+                    foreach ($turnos_selecionados as $id_turno) {
+                        $stmt_disp->bind_param("isi", $id_professor, $dia, $id_turno);
+                        $stmt_disp->execute();
+                    }
+                }
+                $stmt_disp->close();
+            }
         }
 
         $stmt_user = $conn->prepare("INSERT INTO usuarios (email, senha, tipo_usuario, id_professor) VALUES (?, ?, ?, ?)");
@@ -51,19 +73,42 @@ if (isset($_POST['acao']) && $_POST['acao'] == 'criar') {
     }
 }
 // DELETAR USUÁRIO
-if (isset($_GET['deletar'])) {
-    $id = (int)$_GET['deletar'];
-    $stmt = $conn->prepare("DELETE FROM usuarios WHERE id_usuario = ?");
-    $stmt->bind_param("i", $id);
+if (isset($_POST['acao']) && $_POST['acao'] == 'deletar') {
+    $id_usuario = (int)$_POST['id_usuario'];
 
-    if ($stmt->execute()) {
+    $conn->begin_transaction();
+    try {
+        // Primeiro, descobrir se este usuário é um professor para deletar da tabela de professores.
+        $stmt_get_prof = $conn->prepare("SELECT id_professor FROM usuarios WHERE id_usuario = ?");
+        $stmt_get_prof->bind_param("i", $id_usuario);
+        $stmt_get_prof->execute();
+        $result = $stmt_get_prof->get_result();
+        $usuario = $result->fetch_assoc();
+        $stmt_get_prof->close();
+
+        // Se for um professor, deleta o registro da tabela 'professores'.
+        // A constraint ON DELETE CASCADE cuidará de deletar o usuário associado.
+        if ($usuario && $usuario['id_professor']) {
+            $stmt_del_prof = $conn->prepare("DELETE FROM professores WHERE id_professor = ?");
+            $stmt_del_prof->bind_param("i", $usuario['id_professor']);
+            $stmt_del_prof->execute();
+            $stmt_del_prof->close();
+        } else {
+            // Se não for professor (ex: admin), deleta diretamente da tabela 'usuarios'.
+            $stmt_del_user = $conn->prepare("DELETE FROM usuarios WHERE id_usuario = ?");
+            $stmt_del_user->bind_param("i", $id_usuario);
+            $stmt_del_user->execute();
+            $stmt_del_user->close();
+        }
+
+        $conn->commit();
         $mensagem = "Usuário deletado com sucesso!";
         $tipo_mensagem = "sucesso";
-    } else {
-        $mensagem = "Erro ao deletar usuário: " . $stmt->error;
+    } catch (Exception $e) {
+        $conn->rollback();
+        $mensagem = "Erro ao deletar usuário: " . $e->getMessage();
         $tipo_mensagem = "erro";
     }
-    $stmt->close();
 }
 
 // EDITAR USUÁRIO
@@ -72,6 +117,7 @@ if (isset($_POST['acao']) && $_POST['acao'] == 'editar') {
     $email = $_POST['email'];
     $tipo = $_POST['tipo_usuario'];
     $nome_professor = $_POST['nome_professor'] ?? null;
+    $disponibilidade = $_POST['disponibilidade'] ?? [];
 
     $conn->begin_transaction();
 
@@ -102,6 +148,21 @@ if (isset($_POST['acao']) && $_POST['acao'] == 'editar') {
                 $id_professor_final = $stmt_prof->insert_id;
                 $stmt_prof->close();
             }
+
+            // Atualizar disponibilidade
+            // 1. Deletar a disponibilidade antiga
+            $stmt_del_disp = $conn->prepare("DELETE FROM professores_disponibilidade WHERE id_professor = ?");
+            $stmt_del_disp->bind_param("i", $id_professor_final);
+            $stmt_del_disp->execute();
+            $stmt_del_disp->close();
+            // 2. Inserir a nova
+            $stmt_add_disp = $conn->prepare("INSERT INTO professores_disponibilidade (id_professor, dia_semana, id_turno) VALUES (?, ?, ?)");
+            foreach ($disponibilidade as $dia => $turnos_selecionados) {
+                foreach ($turnos_selecionados as $id_turno) {
+                    $stmt_add_disp->bind_param("isi", $id_professor_final, $dia, $id_turno);
+                    $stmt_add_disp->execute();
+                }
+            }
         }
 
         if (!empty($_POST['senha'])) {
@@ -129,14 +190,26 @@ if (isset($_POST['acao']) && $_POST['acao'] == 'editar') {
 }
 // BUSCAR USUÁRIO PARA EDITAR
 $usuario_editar = null;
+$disponibilidade_atual = [];
 if (isset($_GET['editar'])) {
-    $id = (int)$_GET['editar'];
+    $id = (int)$_GET['editar']; // GET para edição é aceitável, pois não modifica dados.
     $stmt = $conn->prepare("SELECT u.*, p.nome_professor FROM usuarios u LEFT JOIN professores p ON u.id_professor = p.id_professor WHERE u.id_usuario = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $resultado = $stmt->get_result();
     if ($resultado->num_rows > 0) {
         $usuario_editar = $resultado->fetch_assoc();
+        // Se for um professor, buscar sua disponibilidade
+        if ($usuario_editar['id_professor']) {
+            $stmt_disp = $conn->prepare("SELECT dia_semana, id_turno FROM professores_disponibilidade WHERE id_professor = ?");
+            $stmt_disp->bind_param("i", $usuario_editar['id_professor']);
+            $stmt_disp->execute();
+            $result_disp = $stmt_disp->get_result();
+            while ($row = $result_disp->fetch_assoc()) {
+                $disponibilidade_atual[$row['dia_semana']][] = $row['id_turno'];
+            }
+            $stmt_disp->close();
+        }
     }
     $stmt->close();
 }
@@ -158,17 +231,35 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
     <link rel="stylesheet" href="/TCC-LEGITIMO/assets/css/style.css">
     <!-- Estilo principal para formulários e páginas de gerenciamento -->
     <link rel="stylesheet" href="/TCC-LEGITIMO/formulario/style.css">
+    <style>
+        .disponibilidade-section { display: none; }
+        .disponibilidade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 10px; }
+        .dia-bloco { background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 15px; }
+        .dia-bloco h4 { margin-top: 0; margin-bottom: 10px; font-size: 1em; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .turno-group label { display: block; margin-bottom: 5px; font-weight: normal; cursor: pointer; }
+        .turno-group input { margin-right: 8px; }
+        .professor-fields-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            display: none; /* Começa escondido */
+        }
+    </style>
     <script>
         function toggleProfessorFields(tipo) {
-            const professorFields = document.querySelectorAll('.professor-field');
-            professorFields.forEach(field => {
-                field.style.display = tipo === 'professor' ? 'block' : 'none';
-                if (tipo === 'professor') {
-                    field.querySelector('input').required = true;
-                } else {
-                    field.querySelector('input').required = false;
-                }
-            });
+            const nomeField = document.getElementById('professor-nome-field');
+            const disponibilidadeSection = document.getElementById('disponibilidade-section');
+            const nomeInput = document.getElementById('nome_professor');
+
+            if (tipo === 'professor') {
+                nomeField.style.display = 'block';
+                disponibilidadeSection.style.display = 'block';
+                nomeInput.required = true;
+            } else {
+                nomeField.style.display = 'none';
+                disponibilidadeSection.style.display = 'none';
+                nomeInput.required = false;
+            }
         }
 
         // Executar quando a página carrega para configurar o estado inicial
@@ -229,10 +320,29 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
                         </select>
                     </div>
 
-                    <div class="form-group professor-field" style="display: none;">
+                    <div class="form-group" id="professor-nome-field" style="display: none;">
                         <label for="nome_professor">Nome do Professor</label>
                         <input type="text" name="nome_professor" id="nome_professor" 
                                value="<?php echo isset($usuario_editar['nome_professor']) ? htmlspecialchars($usuario_editar['nome_professor']) : ''; ?>">
+                    </div>
+                </div>
+
+                <!-- Seção de Disponibilidade para Professores -->
+                <div id="disponibilidade-section" style="display: none; margin-top: 20px;">
+                    <h3>Disponibilidade de Horários</h3>
+                    <div class="disponibilidade-grid">
+                        <?php foreach ($dias_semana as $dia): ?>
+                            <div class="dia-bloco">
+                                <h4><?php echo ucfirst($dia); ?></h4>
+                                <div class="turno-group">
+                                    <?php foreach ($turnos as $turno): 
+                                        $checked = isset($disponibilidade_atual[$dia]) && in_array($turno['id_turno'], $disponibilidade_atual[$dia]) ? 'checked' : '';
+                                    ?>
+                                        <label><input type="checkbox" name="disponibilidade[<?php echo $dia; ?>][]" value="<?php echo $turno['id_turno']; ?>" <?php echo $checked; ?>> <?php echo $turno['nome_turno']; ?></label>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
 
@@ -279,8 +389,11 @@ $resultado_lista = $conn->query($sql_listar); // Para listagem, query direta é 
                                 <td>
                                     <div class="acao">
                                         <a href="?editar=<?php echo $usuario['id_usuario']; ?>" class="btn-editar">Editar</a>
-                                        <a href="?deletar=<?php echo $usuario['id_usuario']; ?>" class="btn-deletar" 
-                                           onclick="return confirm('Tem certeza que deseja deletar?');">Deletar</a>
+                                        <form method="POST" action="" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja deletar este usuário? A ação não pode ser desfeita.');">
+                                            <input type="hidden" name="acao" value="deletar">
+                                            <input type="hidden" name="id_usuario" value="<?php echo $usuario['id_usuario']; ?>">
+                                            <button type="submit" class="btn-deletar">Deletar</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
