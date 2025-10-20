@@ -1,214 +1,104 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Tempo de geração: 17/10/2025 às 15:33
--- Versão do servidor: 10.4.28-MariaDB
--- Versão do PHP: 8.2.4
+-- Desativa a verificação de chaves estrangeiras para evitar erros ao apagar tabelas na ordem errada.
+SET FOREIGN_KEY_CHECKS=0;
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- Remove tabelas antigas ou com estrutura incorreta.
+DROP TABLE IF EXISTS `aulas`;
+DROP TABLE IF EXISTS `professores_competencias`;
+DROP TABLE IF EXISTS `competencias`;
+DROP TABLE IF EXISTS `unidades_curriculares`;
+DROP TABLE IF EXISTS `professores_disponibilidade`;
+DROP TABLE IF EXISTS `usuarios`;
+DROP TABLE IF EXISTS `professores`;
+DROP TABLE IF EXISTS `turnos`;
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Banco de dados: `sistema_senai`
---
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `aulas`
---
-
-CREATE TABLE `aulas` (
-  `id_aula` int(11) NOT NULL,
-  `codigo_materia` varchar(10) NOT NULL,
-  `id_turno` int(11) NOT NULL,
-  `id_professor` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `aulas`
---
-
-INSERT INTO `aulas` (`id_aula`, `codigo_materia`, `id_turno`, `id_professor`) VALUES
-(0, 'PROJ-INT', 1, 1);
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `competencias`
---
-
-CREATE TABLE `competencias` (
-  `id_competencia` int(11) NOT NULL,
-  `id_professor` int(11) NOT NULL,
-  `codigo_materia` varchar(10) NOT NULL,
-  `nivel_competencia` enum('N0','N1','N2','N3') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `competencias`
---
-
-INSERT INTO `competencias` (`id_competencia`, `id_professor`, `codigo_materia`, `nivel_competencia`) VALUES
-(1, 1, 'PROJ-INT', 'N3'),
-(2, 1, 'WEB-BACK', 'N2');
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `professores`
---
-
-CREATE TABLE `professores` (
-  `id_professor` int(11) NOT NULL,
-  `nome_professor` varchar(255) NOT NULL,
-  `telefone_professor` varchar(15) DEFAULT NULL,
-  `email_professor` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `professores`
---
-
-INSERT INTO `professores` (`id_professor`, `nome_professor`, `telefone_professor`, `email_professor`) VALUES
-(1, 'Gabriel', NULL, 'gabixinha@gmail.com'),
-(2, 'Eduarda', NULL, 'duda@gmail.com');
-
--- --------------------------------------------------------
+-- Reativa a verificação de chaves estrangeiras.
+SET FOREIGN_KEY_CHECKS=1;
 
 --
 -- Estrutura para tabela `turnos`
 --
-
 CREATE TABLE `turnos` (
-  `id_turno` int(11) NOT NULL,
-  `nome_turno` varchar(50) NOT NULL
+  `id_turno` int(11) NOT NULL AUTO_INCREMENT,
+  `nome_turno` varchar(50) NOT NULL,
+  PRIMARY KEY (`id_turno`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `turnos`
---
+-- Inserindo dados padrão para os turnos
+INSERT INTO `turnos` (`id_turno`, `nome_turno`) VALUES (1, 'Manhã'), (2, 'Tarde'), (3, 'Noite');
 
-INSERT INTO `turnos` (`id_turno`, `nome_turno`) VALUES
-(1, 'Manhã'),
-(2, 'Tarde'),
-(3, 'Noite');
-
--- --------------------------------------------------------
+--
+-- Estrutura para tabela `professores`
+--
+CREATE TABLE `professores` (
+  `id_professor` int(11) NOT NULL AUTO_INCREMENT,
+  `nome_professor` varchar(255) NOT NULL,
+  `email_professor` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_professor`),
+  UNIQUE KEY `email_professor` (`email_professor`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Estrutura para tabela `usuarios`
 --
-
 CREATE TABLE `usuarios` (
-  `id_usuario` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(100) NOT NULL,
   `senha` varchar(255) NOT NULL,
   `tipo_usuario` enum('professor','administrador') NOT NULL,
-  `id_professor` int(11) DEFAULT NULL
+  `id_professor` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE KEY `email` (`email`),
+  KEY `id_professor` (`id_professor`),
+  CONSTRAINT `fk_usuario_professor` FOREIGN KEY (`id_professor`) REFERENCES `professores` (`id_professor`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Despejando dados para a tabela `usuarios`
+-- Estrutura para tabela `unidades_curriculares` (Matérias)
 --
-
-INSERT INTO `usuarios` (`id_usuario`, `email`, `senha`, `tipo_usuario`, `id_professor`) VALUES
-(3, 'admin@sistema.com', '$2y$10$KT8E9VxV7eOGlRYbuG9SI.bD82ZI5k6OsrM.UGSvUfo5m/8OvqGgO', 'administrador', NULL);
-
---
--- Índices para tabelas despejadas
---
+CREATE TABLE `unidades_curriculares` (
+  `id_uc` int(11) NOT NULL AUTO_INCREMENT,
+  `nome_uc` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_uc`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices de tabela `aulas`
+-- Estrutura para tabela `competencias`
 --
-ALTER TABLE `aulas`
-  ADD PRIMARY KEY (`id_aula`,`codigo_materia`),
-  ADD KEY `id_turno` (`id_turno`),
-  ADD KEY `id_professor` (`id_professor`);
+CREATE TABLE `competencias` (
+  `id_competencia` int(11) NOT NULL AUTO_INCREMENT,
+  `nome_competencia` varchar(255) NOT NULL,
+  `id_uc` int(11) NOT NULL,
+  PRIMARY KEY (`id_competencia`),
+  KEY `id_uc` (`id_uc`),
+  CONSTRAINT `fk_competencia_uc` FOREIGN KEY (`id_uc`) REFERENCES `unidades_curriculares` (`id_uc`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices de tabela `competencias`
+-- Estrutura para tabela `professores_competencias`
 --
-ALTER TABLE `competencias`
-  ADD PRIMARY KEY (`id_competencia`),
-  ADD KEY `id_professor` (`id_professor`);
+CREATE TABLE `professores_competencias` (
+  `id_professor_competencia` int(11) NOT NULL AUTO_INCREMENT,
+  `id_professor` int(11) NOT NULL,
+  `id_competencia` int(11) NOT NULL,
+  `nivel_competencia` enum('N0','N1','N2','N3') NOT NULL,
+  PRIMARY KEY (`id_professor_competencia`),
+  UNIQUE KEY `idx_prof_comp` (`id_professor`,`id_competencia`),
+  KEY `id_competencia` (`id_competencia`),
+  CONSTRAINT `fk_pc_competencia` FOREIGN KEY (`id_competencia`) REFERENCES `competencias` (`id_competencia`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_pc_professor` FOREIGN KEY (`id_professor`) REFERENCES `professores` (`id_professor`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices de tabela `professores`
+-- Estrutura para tabela `professores_disponibilidade`
 --
-ALTER TABLE `professores`
-  ADD PRIMARY KEY (`id_professor`),
-  ADD UNIQUE KEY `email_professor` (`email_professor`);
-
---
--- Índices de tabela `turnos`
---
-ALTER TABLE `turnos`
-  ADD PRIMARY KEY (`id_turno`);
-
---
--- Índices de tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id_usuario`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `id_professor` (`id_professor`);
-
---
--- AUTO_INCREMENT para tabelas despejadas
---
-
---
--- AUTO_INCREMENT de tabela `aulas`
---
-ALTER TABLE `aulas`
-  MODIFY `id_aula` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
-
---
--- AUTO_INCREMENT de tabela `competencias`
---
-ALTER TABLE `competencias`
-  MODIFY `id_competencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `professores`
---
-ALTER TABLE `professores`
-  MODIFY `id_professor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `turnos`
---
-ALTER TABLE `turnos`
-  MODIFY `id_turno` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- Restrições para tabelas despejadas
---
-
---
--- Restrições para tabelas `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_professor`) REFERENCES `professores` (`id_professor`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+CREATE TABLE `professores_disponibilidade` (
+  `id_disponibilidade` int(11) NOT NULL AUTO_INCREMENT,
+  `id_professor` int(11) NOT NULL,
+  `dia_semana` enum('segunda','terca','quarta','quinta','sexta','sabado') NOT NULL,
+  `id_turno` int(11) NOT NULL,
+  PRIMARY KEY (`id_disponibilidade`),
+  UNIQUE KEY `idx_prof_dia_turno` (`id_professor`,`dia_semana`,`id_turno`),
+  KEY `id_turno` (`id_turno`),
+  CONSTRAINT `fk_disp_professor` FOREIGN KEY (`id_professor`) REFERENCES `professores` (`id_professor`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_disp_turno` FOREIGN KEY (`id_turno`) REFERENCES `turnos` (`id_turno`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
