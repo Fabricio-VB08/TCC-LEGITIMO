@@ -1,87 +1,114 @@
-  body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f7fc;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .form-container {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-    }
+/* Layout geral */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-image: url("../home/icones/campus-da-industria.png");
+  background-size: cover;
+}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
+.container {
+  display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
 
-    .input-group {
-      margin-bottom: 15px;
-    }
+/* Lado esquerdo (formulário) */
+.form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: 20%;
+}
 
-    label {
-      font-size: 14px;
-      color: #555;
-      display: block;
-      margin-bottom: 5px;
-    }
+.form-container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
 
-    input:focus {
-      border-color: #664caf;
-      outline: none;
-    }
+.input-group {
+  margin-bottom: 15px;
+}
 
-    .submit-btn {
-      width: 100%;
-      padding: 12px;
-      background-color: #5048be;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
+label {
+  font-size: 14px;
+  color: #555;
+  display: block;
+  margin-bottom: 5px;
+}
 
-    .submit-btn:hover {
-      background-color: #2b599e;
-    }
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
 
-    .form-footer {
-      text-align: center;
-      margin-top: 15px;
-    }
+input:focus {
+  border-color: #664caf;
+  outline: none;
+}
 
-    .form-footer a {
-      color: #4c5baf;
-      text-decoration: none;
-    }
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #5048be;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 
-    .form-footer a:hover {
-      text-decoration: underline;
-    }
+.submit-btn:hover {
+  background-color: #2b599e;
+}
 
-    .Busca_Professor input {
-      border-radius: 90px;
-      width: 300px;
-      position: absolute;
+.erro-msg {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+}
 
-      top: 1000px;
-    }
+/* Lado direito (imagem com corte diagonal) */
+/* .image-side {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-side::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../home/icones/campus-da-industria.png");
+  background-size: cover;
+  background-position: center;
+  clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.image-side::after {
+  content: "";
+  opacity: 50%;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, white 0%, rgba(255,255,255,0) 100%);
+  clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
+} */

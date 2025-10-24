@@ -26,7 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_create->bind_param("sss", $email, $senha_hash, $tipo);
             
             if ($stmt_create->execute()) {
-                // Usuário criado, agora faz o login
                 $_SESSION['id_usuario'] = $stmt_create->insert_id;
                 $_SESSION['email'] = $email;
                 $_SESSION['tipo_usuario'] = $tipo;
@@ -40,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $erro = "Credenciais de administrador inicial incorretas ou o sistema já possui usuários.";
         }
     } else {
-        // 3. Se já existem usuários, proceder com o login normal
+        // 3. Login normal
         $stmt = $conn->prepare("SELECT id_usuario, senha, tipo_usuario FROM usuarios WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -49,56 +48,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($resultado->num_rows === 1) {
             $usuario = $resultado->fetch_assoc();
             if (password_verify($senha, $usuario['senha'])) {
-                // Login bem-sucedido
                 $_SESSION['id_usuario'] = $usuario['id_usuario'];
                 $_SESSION['email'] = $email;
                 $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
-
                 header('Location: http://localhost/TCC-LEGITIMO/home/home.php');
                 exit;
             }
         }
-        // Se chegou até aqui, o login falhou
         $erro = "E-mail ou senha incorretos!";
         $stmt->close();
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Horários - Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="container">
+    
+    <div class="form-side">
       <div class="form-container">
-    <h2>Login</h2>
-  <form action="login.php" method="POST">
-    
-  <div class="input-group">
-    <label for="email">E-mail</label>
-    <input type="email" id="email" name="email" required>
-  </div>
-  <div class="input-group">
-    <label for="senha">Senha</label>
-    <input type="password" id="senha" name="senha" required>
-  </div>
-  <button type="submit" class="submit-btn">Entrar</button>
-  
-</form>
+        <h2>Login</h2>
+        <form action="login.php" method="POST">
+          <div class="input-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="input-group">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" required>
+          </div>
+          <button type="submit" class="submit-btn">Entrar</button>
+        </form>
 
-</div>
-<?php if (!empty($erro)): ?>
-    <p style="color:red; text-align:center; margin-top: 10px;">
-        <?php echo $erro; ?>
-    </p>
-<?php endif; ?>
+        <?php if (!empty($erro)): ?>
+            <p class="erro-msg"><?php echo $erro; ?></p>
+        <?php endif; ?>
+      </div>
+    </div>
 
-     
-    
-    
-        <link rel="stylesheet" href="style.css">
+    <!-- <div class="image-side"></div> -->
+
+  </div>
 </body>
 </html>
