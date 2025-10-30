@@ -50,7 +50,7 @@ if (!isset($_SESSION['id_usuario'])) { header('Location: /TCC-LEGITIMO/cadastroE
              </button>
 
              <button class="botao-picao"  onclick="window.location.href = '/TCC-LEGITIMO/formulario/relatorio_professores.php' ">
-                <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconrelatorio.png"> <!-- Sugestão: crie um ícone para relatórios -->
+                         <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/relat.png">
                 <h3>Relatório de Professores</h3>
             </button>
             </div>
