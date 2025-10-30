@@ -16,3 +16,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+document.getElementById('search-competencia').addEventListener('keyup', function() {
+    const searchValue = this.value.toLowerCase();
+    const competencias = document.querySelectorAll('.competencia-row');
+
+    competencias.forEach(row => {
+        const nome = row.querySelector('.competencia-nome').textContent.toLowerCase();
+        row.style.display = nome.includes(searchValue) ? '' : 'none';
+    });
+
+    // Ocultar fieldsets sem competências visíveis
+    document.querySelectorAll('.materia-group').forEach(group => {
+        const visiveis = group.querySelectorAll('.competencia-row:not([style*="display: none"])').length;
+        group.style.display = visiveis > 0 ? '' : 'none';
+    });
+});
