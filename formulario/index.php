@@ -134,35 +134,52 @@ $niveis = ['N0', 'N1', 'N2', 'N3'];
                     <input type="hidden" name="id_professor" value="<?php echo $selected_professor_id; ?>">
                     
                     <h2>2. Defina os Níveis de Competência</h2>
-                    <div id="materias-container">
-                        <?php if (empty($unidades_com_competencias)): ?>
-                            <p>Nenhuma matéria cadastrada. <a href="crud_competencias.php">Cadastre aqui</a>.</p>
-                        <?php else: ?>
-                            <?php foreach ($unidades_com_competencias as $uc): ?>
-                                <fieldset class="materia-group">
-                                    <legend><?php echo htmlspecialchars($uc['nome_uc']); ?></legend>
-                                    <?php if (empty($uc['competencias'])): ?>
-                                        <p style="font-size: 14px; color: #777; padding: 10px;">Nenhuma competência específica cadastrada para esta matéria.</p>
-                                    <?php else: ?>
-                                        <?php foreach ($uc['competencias'] as $competencia): 
-                                            $id_competencia = $competencia['id_competencia'];
-                                            $nivel_atual = $competencias_atuais[$id_competencia] ?? '';
-                                        ?>
-                                            <div class="competencia-row">
-                                                <span class="competencia-nome"><?php echo htmlspecialchars($competencia['nome_competencia']); ?></span>
-                                                <div class="niveis-group">
-                                                    <?php foreach ($niveis as $nivel): ?>
-                                                        <label><input type="radio" name="competencias[<?php echo $id_competencia; ?>]" value="<?php echo $nivel; ?>" <?php echo ($nivel_atual == $nivel) ? 'checked' : ''; ?>> <?php echo $nivel; ?></label>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </fieldset>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
 
+<!-- Barra de pesquisa -->
+<div style="margin-bottom: 15px;">
+    <input 
+        type="text" 
+        id="search-competencia" 
+        placeholder=" Pesquisar competência..." 
+        style="width: 100%; padding: 8px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;"
+    >
+</div>
+
+<div id="materias-container">
+    <?php if (empty($unidades_com_competencias)): ?>
+        <p>Nenhuma matéria cadastrada. <a href="crud_competencias.php">Cadastre aqui</a>.</p>
+    <?php else: ?>
+        <?php foreach ($unidades_com_competencias as $uc): ?>
+            <fieldset class="materia-group">
+                <legend><?php echo htmlspecialchars($uc['nome_uc']); ?></legend>
+                <?php if (empty($uc['competencias'])): ?>
+                    <p style="font-size: 14px; color: #777; padding: 10px;">Nenhuma competência específica cadastrada para esta matéria.</p>
+                <?php else: ?>
+                    <?php foreach ($uc['competencias'] as $competencia): 
+                        $id_competencia = $competencia['id_competencia'];
+                        $nivel_atual = $competencias_atuais[$id_competencia] ?? '';
+                    ?>
+                        <div class="competencia-row">
+                            <span class="competencia-nome"><?php echo htmlspecialchars($competencia['nome_competencia']); ?></span>
+                            <div class="niveis-group">
+                                <?php foreach ($niveis as $nivel): ?>
+                                    <label>
+                                        <input 
+                                            type="radio" 
+                                            name="competencias[<?php echo $id_competencia; ?>]" 
+                                            value="<?php echo $nivel; ?>" 
+                                            <?php echo ($nivel_atual == $nivel) ? 'checked' : ''; ?>
+                                        > <?php echo $nivel; ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </fieldset>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
                     <br>
                     <button type="submit" name="salvar_competencias" class="btn-primary">SALVAR COMPETÊNCIAS</button>
                 </form>
