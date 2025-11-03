@@ -29,7 +29,7 @@ function GerarCalendário() {
 
         const dia = document.createElement("div");
         dia.classList.add("dia");
-        dia.textContent = `${diaSemana[dataAtual.getDay()]} ${dataAtual.getDate()}/${mes + 1}`;
+        dia.textContent = dataAtual.getDate();
         semana.appendChild(dia);
 
         dataAtual.setDate(dataAtual.getDate() + 1);
