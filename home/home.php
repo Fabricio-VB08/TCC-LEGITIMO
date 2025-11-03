@@ -63,6 +63,11 @@ if (!isset($_SESSION['id_usuario'])) {
                         <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconcalendario.png">
                         <h3>Visualizar Calendário</h3>
                     </button>
+
+                    <button class="botao-picao" onclick="window.location.href = '/TCC-LEGITIMO/home/area_atividades.php'">
+                        <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconmaterias.png">
+                        <h3>Área de Atividades</h3>
+                    </button>
                 <?php endif; ?>
             </div>
         </div>

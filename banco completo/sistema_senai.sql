@@ -92,3 +92,20 @@ CREATE TABLE `professores_disponibilidade` (
   CONSTRAINT `fk_disp_professor` FOREIGN KEY (`id_professor`) REFERENCES `professores` (`id_professor`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_disp_turno` FOREIGN KEY (`id_turno`) REFERENCES `turnos` (`id_turno`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estrutura para tabela `atividades_professor`
+--
+CREATE TABLE `atividades_professor` (
+  `id_atividade` int(11) NOT NULL AUTO_INCREMENT,
+  `id_professor` int(11) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `tipo` enum('tarefa','prova','trabalho') NOT NULL,
+  `data_entrega` date DEFAULT NULL,
+  `concluida` tinyint(1) NOT NULL DEFAULT 0,
+  `data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_atividade`),
+  KEY `fk_atividade_professor` (`id_professor`),
+  CONSTRAINT `fk_atividade_professor` FOREIGN KEY (`id_professor`) REFERENCES `professores` (`id_professor`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
