@@ -6,6 +6,17 @@ body, html {
   font-family: Arial, sans-serif;
   background-image: url("../home/icones/campus-da-industria.png");
   background-size: cover;
+  background-position: center center; /* Centraliza vertical e horizontalmente */
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Mantém a imagem fixa ao rolar */
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255,255,255,0.3); /* camada leve */
+  backdrop-filter: blur(3px);
 }
 
 .container {
@@ -87,28 +98,29 @@ input:focus {
   margin-top: 10px;
 }
 
-/* Lado direito (imagem com corte diagonal) */
-/* .image-side {
+.image-side {
   flex: 1;
   position: relative;
-  overflow: hidden;
+  background: #5048BE;
+  background: linear-gradient(90deg, rgba(80, 72, 190, 1) 0%, rgba(116, 109, 203, 1) 62%, rgba(255, 255, 255, 1) 100%);
+  clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
+  display: flex;
+  align-items: flex-end;   /* imagem vai para a parte de baixo */
+  justify-content: flex-end; /* imagem vai para o lado direito */
+  padding: 40px; /* dá espaço interno para afastar da borda */
 }
 
-.image-side::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("../home/icones/campus-da-industria.png");
-  background-size: cover;
-  background-position: center;
-  clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
+.image-side img {
+  max-width: 45%;
+  height: auto;
+  opacity: 0.95;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
+
 
 .image-side::after {
   content: "";
-  opacity: 50%;
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, white 0%, rgba(255,255,255,0) 100%);
-  clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
-} */
+  background: linear-gradient(to left, rgba(255,255,255,0.8) 0%, transparent 60%);
+}
