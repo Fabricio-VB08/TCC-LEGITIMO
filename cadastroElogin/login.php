@@ -69,31 +69,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    
-    <div class="form-side">
-      <div class="form-container">
-        <h2>Login</h2>
-        <form action="login.php" method="POST">
-          <div class="input-group">
-            <label for="email">E-mail</label>
-            <input type="email" id="email" name="email" required>
-          </div>
-          <div class="input-group">
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" name="senha" required>
-          </div>
-          <button type="submit" class="submit-btn">Entrar</button>
-        </form>
+<div class="container">
+  <div class="form-side">
+    <div class="form-container">
+      <h2>Login</h2>
+      <form action="login.php" method="POST">
+        <div class="input-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="input-group">
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" name="senha" required>
+        </div>
+        <button type="submit" class="submit-btn">Entrar</button>
+        
+      </form>
 
-        <?php if (!empty($erro)): ?>
-            <p class="erro-msg"><?php echo $erro; ?></p>
-        <?php endif; ?>
-      </div>
+      <?php if (!empty($erro)): ?>
+        <p class="erro-msg"><?php echo $erro; ?></p>
+      <?php endif; ?>
     </div>
-
-    <!-- <div class="image-side"></div> -->
-
   </div>
+
+  <!-- Painel azul diagonal -->
+  <div class="image-side">
+
+   <img src="../home/icones/logo_sistema.png"></img>
+
+   
+  </div>
+</div>
+
 </body>
 </html>
