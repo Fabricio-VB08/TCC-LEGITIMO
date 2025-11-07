@@ -1,3 +1,11 @@
+
+const eventos = [
+  { dia: 5, mes: 0, professor: "João" },
+  { dia: 12, mes: 0, professor: "Maria" },
+  { dia: 19, mes: 11, professor: "Gabriel" },
+  { dia: 25, mes: 0, professor: "Carlos" }
+];
+
 function GerarCalendário() {
     const mes = parseInt(document.getElementById("mes").value);
     const ano = new Date().getFullYear();
@@ -6,7 +14,7 @@ function GerarCalendário() {
 
     const diaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     const primdia = new Date(ano, mes, 1);
-    const ultimodia = new Date(ano, mes + 1);
+    const ultimodia = new Date(ano, mes + 1, 0);
 
     let dataAtual = new Date(primdia);
 
@@ -41,3 +49,27 @@ function GerarCalendário() {
 }
 
 document.getElementById("gerar").addEventListener("click", GerarCalendário);
+
+function Filtrar() {
+
+    const nome = prompt("Digite o nome do professor");
+    const messelecionado = parseInt(document.getElementById("mes").value);
+
+    const dias = document.querySelectorAll(".dia");
+
+    dias.forEach(dia => {
+
+        const numero = parseInt(dia.textContent);
+        const evento = eventos.find(e => e.dia === numero && e.mes === messelecionado && e.professor === nome);
+        
+         if (evento) {
+      dia.style.backgroundColor = "#28a745"; // verde para destacar
+      dia.style.color = "white";
+    } else {
+      dia.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      dia.style.color = "#c2c4c9";
+    }
+    });
+}
+
+document.getElementById("filtrar").addEventListener("click", Filtrar);

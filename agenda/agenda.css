@@ -2,35 +2,66 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f7fc;
     margin: 0;
-    padding: 0;
     justify-content: center;
     align-items: center;
     height: 100vh;
     background: #ebf2f5;
-    background: linear-gradient(90deg, rgba(235, 242, 245, 1) 0%, rgba(207, 236, 255, 1) 100%);
+    background: linear-gradient(90deg, rgb(9, 43, 128) 0%, rgb(9, 25, 111) 100%);
   }
+
+#wrapper {
+
+  padding: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+
+}
 
 #calendario-semanal {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   margin-top: 20px;
 }
 
-.semana {
+
+#mes {
+  border-radius: 30px;
+  width: 100px;
+  height: 80px;
+  background-color:  rgb(255, 255, 255, 0.7);
+}
+
+#calendario {
+
+  color: #ebf2f5;
+}
+
+#controle-calendario {
+  background-color: white;
+  padding: 20px;
   display: flex;
-  gap: 5px;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin: 0 auto 40px auto;
+}
+
+.semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
 }
 
 .dia {
+  aspect-ratio: 1/1;
   flex: 1;
-  width: 80px;
-  height: 80px;
+  width: 170px;
+  height: 100px;
   padding: 10px;
-  color: white;
-  background-color: #f4f7fc;
+  color: #c2c4c9;
+  background-color: rgba(0, 0, 0, 0.3);
   text-align: center;
-  border: 1px solid #000c94;
+  border: 1px solid #c2c4c9;
   border-radius: 6px;
   min-height: 60px;
 }
