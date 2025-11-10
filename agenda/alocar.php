@@ -36,7 +36,7 @@ function alocarProfessores($conn) {
             ORDER BY t.id_turno, h.dia_semana
         ")->fetch_all(MYSQLI_ASSOC);
 
-        $professores_alocados_no_dia = []; // Controla conflitos: [dia][id_professor] = true
+        $professores_alocados_por_turno_dia = []; // Controla conflitos: [dia][turno][id_professor] = true
 
         $stmt_update_horario = $conn->prepare("UPDATE horarios SET id_professor_alocado = ? WHERE id_horario = ?");
 
@@ -47,8 +47,12 @@ function alocarProfessores($conn) {
             $id_uc = $horario['id_uc'];
 
             // Inicializa o array de controle de conflito para o dia, se não existir
-            if (!isset($professores_alocados_no_dia[$dia])) {
-                $professores_alocados_no_dia[$dia] = [];
+            if (!isset($professores_alocados_por_turno_dia[$dia])) {
+                $professores_alocados_por_turno_dia[$dia] = [];
+            }
+            // E também para o turno dentro do dia
+            if (!isset($professores_alocados_por_turno_dia[$dia][$id_turno])) {
+                $professores_alocados_por_turno_dia[$dia][$id_turno] = [];
             }
 
             // 4. Encontra o melhor professor para este horário
@@ -78,12 +82,12 @@ function alocarProfessores($conn) {
             foreach ($candidatos as $candidato) {
                 $id_professor_candidato = $candidato['id_professor'];
                 // Se o professor ainda não foi alocado neste dia, aloca ele.
-                if (!isset($professores_alocados_no_dia[$dia][$id_professor_candidato])) {
+                if (!isset($professores_alocados_por_turno_dia[$dia][$id_turno][$id_professor_candidato])) {
                     $stmt_update_horario->bind_param("ii", $id_professor_candidato, $id_horario);
                     $stmt_update_horario->execute();
                     
                     // Marca o professor como ocupado para este dia para evitar dupla alocação
-                    $professores_alocados_no_dia[$dia][$id_professor_candidato] = true;
+                    $professores_alocados_por_turno_dia[$dia][$id_turno][$id_professor_candidato] = true;
                     break; // Passa para o próximo horário vago
                 }
             }
