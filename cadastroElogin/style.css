@@ -101,8 +101,8 @@ input:focus {
 .image-side {
   flex: 1;
   position: relative;
-  background: #5048BE;
-  background: linear-gradient(90deg, rgba(80, 72, 190, 1) 0%, rgba(116, 109, 203, 1) 62%, rgba(255, 255, 255, 1) 100%);
+  background: #3d35a7;
+  background: linear-gradient(90deg, rgb(49, 41, 165) 0%, rgb(42, 36, 122) 62%, rgb(16, 23, 90)80%);
   clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
   display: flex;
   align-items: flex-end;   /* imagem vai para a parte de baixo */
@@ -115,6 +115,7 @@ input:focus {
   height: auto;
   opacity: 0.95;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  z-index: 4;
 }
 
 
@@ -122,5 +123,5 @@ input:focus {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to left, rgba(255,255,255,0.8) 0%, transparent 60%);
+  background: linear-gradient(to left, rgba(27, 35, 109, 0.8) 0%, transparent 60%);
 }
