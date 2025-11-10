@@ -1,67 +1,204 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7fc;
+/* c:/xampp/htdocs/TCC-LEGITIMO/agenda/agenda.css */
+
+/* =================================== */
+/* 1. ESTILO BASE E NAVBAR (PADRÃO HOME) */
+/* =================================== */
+body, html {
     margin: 0;
-    justify-content: center;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(90deg, rgba(235, 242, 245, 1) 0%, rgba(207, 236, 255, 1) 100%);
+    color: #333;
+}
+
+.navbar {
+    background-color: #162c68;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    height: 100vh;
-    background: #ebf2f5;
-    background: linear-gradient(90deg, rgb(9, 43, 128) 0%, rgb(9, 25, 111) 100%);
-  }
-
-#wrapper {
-
-  padding: 10px;
-  max-width: 600px;
-  margin: 0 auto;
-
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-#calendario-semanal {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 20px;
+.direita {
+    display: flex;
+    gap: 20px;
 }
 
-
-#mes {
-  border-radius: 30px;
-  width: 100px;
-  height: 80px;
-  background-color:  rgb(255, 255, 255, 0.7);
+.direita a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
 }
 
-#calendario {
-
-  color: #ebf2f5;
+.direita a:hover {
+    background-color: #2b599e;
 }
 
-#controle-calendario {
-  background-color: white;
-  padding: 20px;
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin: 0 auto 40px auto;
+.direita .btn-sair {
+    background-color: #d32f2f;
 }
 
-.semana {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0;
+.direita .btn-sair:hover {
+    background-color: #b71c1c;
 }
 
-.dia {
-  aspect-ratio: 1/1;
-  flex: 1;
-  width: 170px;
-  height: 100px;
-  padding: 10px;
-  color: #c2c4c9;
-  background-color: rgba(0, 0, 0, 0.3);
-  text-align: center;
-  border: 1px solid #c2c4c9;
-  border-radius: 6px;
-  min-height: 60px;
+/* =================================== */
+/* 2. CONTAINER E CABEÇALHO PRINCIPAL  */
+/* =================================== */
+.container-main {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.header h1 {
+    font-size: 28px;
+    color: #162c68;
+    margin-bottom: 20px;
+}
+
+/* =================================== */
+/* 3. ESTILO DOS CARDS E SEÇÕES        */
+/* =================================== */
+.agenda-container {
+    margin-top: 30px;
+}
+
+.form-section,
+.turno-section {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    overflow-x: auto; /* Adiciona scroll horizontal em telas pequenas */
+}
+
+.form-section h2,
+.turno-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 20px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 15px;
+}
+
+/* =================================== */
+/* 4. GRADE DE HORÁRIOS MODERNIZADA    */
+/* =================================== */
+.agenda-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.5fr) repeat(6, minmax(140px, 1fr)); /* Colunas mais largas */
+    gap: 8px;
+    text-align: center;
+    min-width: 900px; /* Garante que a grade não quebre, ativando o scroll */
+}
+
+.header-dia, .nome-turma, .celula-horario {
+    padding: 12px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px; /* Células um pouco mais altas */
+    border-radius: 6px;
+}
+
+.header-dia {
+    background-color: #eef2f7;
+    color: #334d6e;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.nome-turma {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #495057;
+    text-align: left;
+    justify-content: flex-start;
+    border-right: 3px solid #007bff;
+}
+
+.celula-horario {
+    background-color: #fff;
+    border: 1px solid #f0f0f0;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.celula-horario:hover {
+    background-color: #fcfdff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.prof-nome {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.prof-nome.vago {
+    color: #aaa;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.linha-vazia {
+    grid-column: 1 / -1; /* Ocupa todas as colunas */
+    padding: 25px;
+    text-align: center;
+    color: #777;
+    background-color: #fdfdfd;
+    border: 1px dashed #ddd;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+.linha-vazia a {
+    color: #007bff;
+    font-weight: bold;
+}
+    color: white;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.nome-turma {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: left;
+    justify-content: flex-start;
+    border-radius: 4px;
+}
+
+.celula-horario {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+}
+
+.prof-nome {
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.prof-nome.vago {
+    color: #999;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.linha-vazia {
+    grid-column: 1 / -1; /* Ocupa todas as colunas */
+    padding: 20px;
+    text-align: center;
+    color: #777;
+    background-color: #fdfdfd;
+    border: 1px dashed #ddd;
+    margin-top: 10px;
+    border-radius: 4px;
 }

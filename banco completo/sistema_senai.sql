@@ -109,3 +109,33 @@ CREATE TABLE `atividades_professor` (
   KEY `fk_atividade_professor` (`id_professor`),
   CONSTRAINT `fk_atividade_professor` FOREIGN KEY (`id_professor`) REFERENCES `professores` (`id_professor`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estrutura para tabela `turmas`
+--
+CREATE TABLE `turmas` (
+  `id_turma` int(11) NOT NULL AUTO_INCREMENT,
+  `nome_turma` varchar(255) NOT NULL,
+  `id_uc` int(11) NOT NULL,
+  `id_turno` int(11) NOT NULL,
+  PRIMARY KEY (`id_turma`),
+  KEY `id_uc` (`id_uc`),
+  KEY `id_turno` (`id_turno`),
+  CONSTRAINT `fk_turma_uc` FOREIGN KEY (`id_uc`) REFERENCES `unidades_curriculares` (`id_uc`) ON DELETE CASCADE,
+  CONSTRAINT `fk_turma_turno` FOREIGN KEY (`id_turno`) REFERENCES `turnos` (`id_turno`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estrutura para tabela `horarios`
+--
+CREATE TABLE `horarios` (
+  `id_horario` int(11) NOT NULL AUTO_INCREMENT,
+  `id_turma` int(11) NOT NULL,
+  `dia_semana` enum('segunda','terca','quarta','quinta','sexta','sabado') NOT NULL,
+  `id_professor_alocado` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_horario`),
+  UNIQUE KEY `idx_turma_dia` (`id_turma`,`dia_semana`),
+  KEY `id_professor_alocado` (`id_professor_alocado`),
+  CONSTRAINT `fk_horario_professor` FOREIGN KEY (`id_professor_alocado`) REFERENCES `professores` (`id_professor`) ON DELETE SET NULL,
+  CONSTRAINT `fk_horario_turma` FOREIGN KEY (`id_turma`) REFERENCES `turmas` (`id_turma`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

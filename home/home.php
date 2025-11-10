@@ -53,6 +53,11 @@ if (!isset($_SESSION['id_usuario'])) {
                         <h3>Gerenciar Matérias</h3>
                     </button>
 
+                    <button class="botao-picao" onclick="window.location.href = '/TCC-LEGITIMO/formulario/crud_turmas.php'">
+                        <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/iconprofessores.png">
+                        <h3>Gerenciar Turmas</h3>
+                    </button>
+
                     <button class="botao-picao" onclick="window.location.href = '/TCC-LEGITIMO/formulario/relatorio_professores.php'">
                         <img class="icone-botao" src="/TCC-LEGITIMO/home/icones/relat.png">
                         <h3>Relatório de Professores</h3>
