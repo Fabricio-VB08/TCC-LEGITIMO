@@ -8,37 +8,63 @@ if (!isset($_SESSION['id_usuario'])) {
 }
 $is_admin = $_SESSION['tipo_usuario'] === 'administrador';
 
-// Buscar dados para a agenda
-$dias_semana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
-$turnos = $conn->query("SELECT * FROM turnos ORDER BY id_turno")->fetch_all(MYSQLI_ASSOC);
+if ($is_admin) {
+    // --- LÓGICA PARA O ADMINISTRADOR (VISÃO COMPLETA) ---
+    $dias_semana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+    $turnos = $conn->query("SELECT * FROM turnos ORDER BY id_turno")->fetch_all(MYSQLI_ASSOC);
 
-// Estrutura para armazenar os horários
-$horarios_grid = [];
-foreach ($turnos as $turno) {
-    foreach ($dias_semana as $dia) {
-        $horarios_grid[$turno['nome_turno']][$dia] = [];
+    $horarios_grid = [];
+    foreach ($turnos as $turno) {
+        foreach ($dias_semana as $dia) {
+            $horarios_grid[$turno['nome_turno']][$dia] = [];
+        }
     }
-}
 
-// Buscar os horários já alocados
-$sql = "
-    SELECT 
-        h.dia_semana,
-        t.nome_turma,
-        h.id_horario,
-        tu.nome_turno,
-        p.nome_professor
-    FROM horarios h
-    JOIN turmas t ON h.id_turma = t.id_turma
-    JOIN turnos tu ON t.id_turno = tu.id_turno
-    LEFT JOIN professores p ON h.id_professor_alocado = p.id_professor
-    WHERE t.id_turno IN (SELECT id_turno FROM turnos) AND h.dia_semana IN ('segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado')
-    ORDER BY tu.id_turno, t.nome_turma
-";
+    $sql = "
+        SELECT 
+            h.dia_semana, t.nome_turma, h.id_horario, tu.nome_turno, p.nome_professor
+        FROM horarios h
+        JOIN turmas t ON h.id_turma = t.id_turma
+        JOIN turnos tu ON t.id_turno = tu.id_turno
+        LEFT JOIN professores p ON h.id_professor_alocado = p.id_professor
+        WHERE t.id_turno IN (SELECT id_turno FROM turnos) AND h.dia_semana IN ('segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado')
+        ORDER BY tu.id_turno, t.nome_turma
+    ";
 
-$result = $conn->query($sql);
-while ($row = $result->fetch_assoc()) {
-    $horarios_grid[$row['nome_turno']][$row['dia_semana']][] = $row;
+    $result = $conn->query($sql);
+    while ($row = $result->fetch_assoc()) {
+        $horarios_grid[$row['nome_turno']][$row['dia_semana']][] = $row;
+    }
+} else {
+    // --- LÓGICA PARA O PROFESSOR (VISÃO PERSONALIZADA) ---
+    $id_usuario = $_SESSION['id_usuario'];
+    $stmt_prof = $conn->prepare("SELECT id_professor FROM usuarios WHERE id_usuario = ?");
+    $stmt_prof->bind_param("i", $id_usuario);
+    $stmt_prof->execute();
+    $id_professor = $stmt_prof->get_result()->fetch_assoc()['id_professor'];
+    $stmt_prof->close();
+
+    $horarios_professor = [];
+    if ($id_professor) {
+        $sql_professor = "
+            SELECT 
+                h.dia_semana,
+                tu.nome_turno,
+                t.nome_turma,
+                uc.nome_uc
+            FROM horarios h
+            JOIN turmas t ON h.id_turma = t.id_turma
+            JOIN turnos tu ON t.id_turno = tu.id_turno
+            JOIN unidades_curriculares uc ON t.id_uc = uc.id_uc
+            WHERE h.id_professor_alocado = ?
+            ORDER BY FIELD(h.dia_semana, 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'), tu.id_turno
+        ";
+        $stmt = $conn->prepare($sql_professor);
+        $stmt->bind_param("i", $id_professor);
+        $stmt->execute();
+        $horarios_professor = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+    }
 }
 ?>
 
@@ -58,6 +84,10 @@ while ($row = $result->fetch_assoc()) {
         .celula-horario { position: relative; }
         .btn-editar-horario { position: absolute; top: 5px; right: 5px; background: #eee; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; display: none; align-items: center; justify-content: center; }
         .celula-horario:hover .btn-editar-horario { display: flex; }
+        /* Estilos para a tabela do professor */
+        .tabela-professor { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .tabela-professor th, .tabela-professor td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .tabela-professor th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
@@ -75,94 +105,123 @@ while ($row = $result->fetch_assoc()) {
 
     <div class="container-main">
         <div class="header">
-            <h1>Agenda de Horários</h1>
+            <h1><?php echo $is_admin ? 'Agenda de Horários (Visão do Administrador)' : 'Minha Agenda de Aulas'; ?></h1>
         </div>
 
         <?php if ($is_admin): ?>
-        <div class="form-section">
-            <h2>Controles da Agenda</h2>
-            <p>Clique no botão abaixo para executar o algoritmo de alocação automática de professores. O sistema irá preencher os horários vagos com os professores mais aptos e disponíveis.</p>
-            <form action="alocar.php" method="POST" onsubmit="return confirm('Isso irá redefinir e alocar todos os professores. Deseja continuar?');">
-                <button type="submit" name="alocar" class="btn-primary">Alocar Professores</button>
-            </form>
-        </div>
-        <?php endif; ?>
+            <!-- VISUALIZAÇÃO DO ADMINISTRADOR -->
+            <div class="form-section">
+                <h2>Controles da Agenda</h2>
+                <p>Clique no botão abaixo para executar o algoritmo de alocação automática de professores. O sistema irá preencher os horários vagos com os professores mais aptos e disponíveis.</p>
+                <form action="alocar.php" method="POST" onsubmit="return confirm('Isso irá redefinir e alocar todos os professores. Deseja continuar?');">
+                    <button type="submit" name="alocar" class="btn-primary">Alocar Professores</button>
+                </form>
+            </div>
 
-        <div class="agenda-container">
-            <?php if (empty($horarios_grid)): ?>
-                <p>Nenhum turno cadastrado.</p>
-            <?php else: ?>
-                <?php foreach ($horarios_grid as $nome_turno => $dias): ?>
-                    <div class="turno-section">
-                        <h2><?php echo htmlspecialchars($nome_turno); ?></h2>
-                        <div class="agenda-grid">
-                            <div class="header-dia">Turma</div>
-                            <?php foreach ($dias_semana as $dia): ?>
-                                <div class="header-dia"><?php echo ucfirst($dia); ?></div>
-                            <?php endforeach; ?>
-
-                            <?php
-                            // Agrupar por turma para criar as linhas
-                            $turmas_no_turno = [];
-                            foreach ($dias as $dia_key => $alocacoes) {
-                                foreach ($alocacoes as $aloc) {
-                                    $turmas_no_turno[$aloc['nome_turma']][$dia_key] = ['professor' => $aloc['nome_professor'], 'id_horario' => $aloc['id_horario']];
-                                }
-                            }
-                            ?>
-
-                            <?php if (empty($turmas_no_turno)): ?>
-                                <div class="linha-vazia">Nenhuma turma para este turno. <a href="/TCC-LEGITIMO/formulario/crud_turmas.php">Cadastre uma turma</a>.</div>
-                            <?php else: ?>
-                                <?php foreach ($turmas_no_turno as $nome_turma => $horarios_turma): ?>
-                                    <div class="nome-turma"><?php echo htmlspecialchars($nome_turma); ?></div>
-                                    <?php foreach ($dias_semana as $dia): ?>
-                                        <div class="celula-horario">
-                                            <?php if (isset($horarios_turma[$dia]) && $horarios_turma[$dia]['id_horario']): ?>
-                                                <span class="prof-nome"><?php echo htmlspecialchars($horarios_turma[$dia]['professor'] ?: 'Vago'); ?></span>
-                                                <?php if ($is_admin): ?>
-                                                    <button class="btn-editar-horario" title="Editar Horário" onclick="abrirModalEdicao(<?php echo $horarios_turma[$dia]['id_horario']; ?>)">&#9998;</button>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <span class="prof-nome vago"></span>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endforeach; ?>
+            <div class="agenda-container">
+                <?php if (empty($turnos)): ?>
+                    <p>Nenhum turno cadastrado.</p>
+                <?php else: ?>
+                    <?php foreach ($horarios_grid as $nome_turno => $dias): ?>
+                        <div class="turno-section">
+                            <h2><?php echo htmlspecialchars($nome_turno); ?></h2>
+                            <div class="agenda-grid">
+                                <div class="header-dia">Turma</div>
+                                <?php foreach ($dias_semana as $dia): ?>
+                                    <div class="header-dia"><?php echo ucfirst($dia); ?></div>
                                 <?php endforeach; ?>
-                            <?php endif; ?>
+
+                                <?php
+                                // Agrupar por turma para criar as linhas
+                                $turmas_no_turno = [];
+                                foreach ($dias as $dia_key => $alocacoes) {
+                                    foreach ($alocacoes as $aloc) {
+                                        $turmas_no_turno[$aloc['nome_turma']][$dia_key] = ['professor' => $aloc['nome_professor'], 'id_horario' => $aloc['id_horario']];
+                                    }
+                                }
+                                ?>
+
+                                <?php if (empty($turmas_no_turno)): ?>
+                                    <div class="linha-vazia">Nenhuma turma para este turno. <a href="/TCC-LEGITIMO/formulario/crud_turmas.php">Cadastre uma turma</a>.</div>
+                                <?php else: ?>
+                                    <?php foreach ($turmas_no_turno as $nome_turma => $horarios_turma): ?>
+                                        <div class="nome-turma"><?php echo htmlspecialchars($nome_turma); ?></div>
+                                        <?php foreach ($dias_semana as $dia): ?>
+                                            <div class="celula-horario">
+                                                <?php if (isset($horarios_turma[$dia]) && $horarios_turma[$dia]['id_horario']): ?>
+                                                    <span class="prof-nome"><?php echo htmlspecialchars($horarios_turma[$dia]['professor'] ?: 'Vago'); ?></span>
+                                                    <button class="btn-editar-horario" title="Editar Horário" onclick="abrirModalEdicao(<?php echo $horarios_turma[$dia]['id_horario']; ?>)">&#9998;</button>
+                                                <?php else: ?>
+                                                    <span class="prof-nome vago"></span>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+        <?php else: ?>
+            <!-- VISUALIZAÇÃO DO PROFESSOR -->
+            <div class="table-section">
+                <?php if (empty($horarios_professor)): ?>
+                    <p>Você ainda não foi alocado em nenhuma aula.</p>
+                <?php else: ?>
+                    <table class="tabela-professor">
+                        <thead>
+                            <tr>
+                                <th>Dia da Semana</th>
+                                <th>Turno</th>
+                                <th>Turma</th>
+                                <th>Matéria (UC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($horarios_professor as $aula): ?>
+                                <tr>
+                                    <td><?php echo ucfirst(htmlspecialchars($aula['dia_semana'])); ?></td>
+                                    <td><?php echo htmlspecialchars($aula['nome_turno']); ?></td>
+                                    <td><?php echo htmlspecialchars($aula['nome_turma']); ?></td>
+                                    <td><?php echo htmlspecialchars($aula['nome_uc']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
         </div>
     </div>
 
     <!-- Modal de Edição -->
     <?php if ($is_admin): ?>
-    <div id="modalEdicao" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="fecharModalEdicao()">&times;</span>
-            <h2>Editar Alocação</h2>
-            <form id="formEdicao" method="POST" action="alocar.php">
-                <input type="hidden" name="acao" value="editar_horario">
-                <input type="hidden" name="id_horario" id="id_horario_modal">
-                
-                <div class="form-group">
-                    <label for="id_professor_modal">Selecione o Professor:</label>
-                    <select name="id_professor" id="id_professor_modal" class="form-control" required>
-                        <!-- Opções serão carregadas via JavaScript -->
-                    </select>
-                </div>
+        <div id="modalEdicao" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="fecharModalEdicao()">&times;</span>
+                <h2>Editar Alocação</h2>
+                <form id="formEdicao" method="POST" action="alocar.php">
+                    <input type="hidden" name="acao" value="editar_horario">
+                    <input type="hidden" name="id_horario" id="id_horario_modal">
+                    
+                    <div class="form-group">
+                        <label for="id_professor_modal">Selecione o Professor:</label>
+                        <select name="id_professor" id="id_professor_modal" class="form-control" required>
+                            <!-- Opções serão carregadas via JavaScript -->
+                        </select>
+                    </div>
 
-                <div class="form-group" style="margin-top: 20px;">
-                    <button type="submit" class="btn-primary">Salvar Alteração</button>
-                    <button type="button" class="btn-secondary" onclick="fecharModalEdicao()">Cancelar</button>
-                </div>
-            </form>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <button type="submit" class="btn-primary">Salvar Alteração</button>
+                        <button type="button" class="btn-secondary" onclick="fecharModalEdicao()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <script>
+        <script>
         const modal = document.getElementById('modalEdicao');
         const idHorarioInput = document.getElementById('id_horario_modal');
         const professorSelect = document.getElementById('id_professor_modal');
@@ -201,7 +260,7 @@ while ($row = $result->fetch_assoc()) {
         function fecharModalEdicao() {
             modal.style.display = 'none';
         }
-    </script>
+        </script>
     <?php endif; ?>
 </body>
 </html>
