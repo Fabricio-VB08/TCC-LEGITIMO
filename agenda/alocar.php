@@ -2,9 +2,25 @@
 require '../cadastroElogin/mysql.php';
 session_start();
 
-// Apenas administradores podem executar esta ação
-if (!isset($_SESSION['id_usuario']) || $_SESSION['tipo_usuario'] !== 'administrador' || !isset($_POST['alocar'])) {
+// Apenas administradores podem executar estas ações
+if (!isset($_SESSION['id_usuario']) || $_SESSION['tipo_usuario'] !== 'administrador') {
     header('Location: /TCC-LEGITIMO/home/home.php');
+    exit;
+}
+
+// AÇÃO: Editar um único horário (vinda do modal)
+if (isset($_POST['acao']) && $_POST['acao'] === 'editar_horario') {
+    $id_horario = (int)$_POST['id_horario'];
+    // Se o valor for '0', significa "deixar vago", então salvamos NULL no banco.
+    $id_professor = $_POST['id_professor'] === '0' ? null : (int)$_POST['id_professor'];
+
+    $stmt = $conn->prepare("UPDATE horarios SET id_professor_alocado = ? WHERE id_horario = ?");
+    $stmt->bind_param("ii", $id_professor, $id_horario);
+    $stmt->execute();
+    $stmt->close();
+
+    // Redireciona de volta para a agenda
+    header('Location: agenda.php');
     exit;
 }
 
@@ -101,7 +117,10 @@ function alocarProfessores($conn) {
     }
 }
 
-alocarProfessores($conn);
+// AÇÃO: Alocar todos os professores
+if (isset($_POST['alocar'])) {
+    alocarProfessores($conn);
+}
 
 // Redireciona de volta para a agenda para ver o resultado
 header('Location: agenda.php');
